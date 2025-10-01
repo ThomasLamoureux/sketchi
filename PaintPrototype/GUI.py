@@ -1,4 +1,5 @@
 import tkinter as tk
+import test
 from tkinter import ttk, colorchooser, Menu
 import os
 
@@ -372,6 +373,11 @@ class SketchiApp(tk.Tk):
                 canvas.create_line(last["x"], last["y"], e.x, e.y,
                                    fill=fg.get(), width=size_var.get(),
                                    capstyle="round", joinstyle="round")
+
+                test.test(t, last["x"], last["y"], e.x, e.y,
+                                   fg.get(), size_var.get(),
+                                   "round", "round")
+
                 last["x"], last["y"] = e.x, e.y
             elif t == "eraser":
                 canvas.create_line(last["x"], last["y"], e.x, e.y,
@@ -399,6 +405,11 @@ class SketchiApp(tk.Tk):
 
         tool_var.trace_add("write", lambda *_: update_status())
 
-if __name__ == "__main__":
+
+def run():
     app = SketchiApp()
     app.mainloop() 
+
+if __name__ == "__main__":
+    run()
+

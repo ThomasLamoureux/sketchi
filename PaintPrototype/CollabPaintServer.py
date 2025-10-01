@@ -8,4 +8,4 @@ class CollabPaintServer(CollabPaint):
         pass
 
 
-    
+    def paint(self):

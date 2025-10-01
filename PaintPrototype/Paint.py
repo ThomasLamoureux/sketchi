@@ -38,11 +38,17 @@ class Paint_Window:
         
 
     def paint(self, event):
+        print(f"{event.x} , {event.y}")
         if self.old_x and self.old_y:
             self.paint_canvas.canvas.create_line(self.old_x, self.old_y, event.x, event.y, width = self.pen.width
                                                  , fill = self.pen.permanent_color or self.pen_color, capstyle=self.pen.capstyle, smooth = self.pen.smoothing)
         self.old_x = event.x
         self.old_y = event.y
+
+
+    def system_paint(self, old_x, old_y, new_x, new_y, fill, width, capstyle, joinstyle):
+        self.paint_canvas.canvas.create_line(old_x, old_y, new_x, new_y, fill=fill, width=width, capstyle=capstyle, joinstyle=joinstyle)
+    
 
     def set_pen(self, pen):
         self.pen = pen
@@ -105,12 +111,20 @@ class Paint_Window:
         color_code = colorchooser.askcolor(title ="Choose color")[1]
         self.pen_color = color_code
 
+import threading
 
+wind = [None]
 
+def start(wind):
+    win = Tk()
+    win.title("Paint App")
+    wind[0] = Paint_Window(win)
+    win.mainloop()
 
+def system_paint(old_x, old_y, new_x, new_y, fill, width, capstyle, joinstyle):
+    print(f"{new_x} , {new_y}")
+    wind[0].system_paint(old_x, old_y, new_x, new_y, fill, width, capstyle, joinstyle)
 
-
-win = Tk()
-win.title("Paint App")
-Paint_Window(win)
-win.mainloop()
+thread = threading.Thread(target=start, args=(wind,))
+thread.daemon = True  # Kills thread when main program exits
+thread.start()
