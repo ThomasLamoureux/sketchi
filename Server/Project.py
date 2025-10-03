@@ -8,6 +8,7 @@ class Project:
 
     def __init__(self, id):
         self.id = id
+        self.users = []
 
 
     def init_canvas(self):

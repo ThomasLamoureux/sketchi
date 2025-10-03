@@ -1,16 +1,15 @@
 import socket
 import threading
+import Online_Users
 
 # Server configuration
 HOST = "0.0.0.0"  # Listen on all available network interfaces
 PORT = 12345      # Choose a port number > 1024
 
-# List to keep track of connected clients
-clients = []
 
 def handle_client(conn, addr):
     print(f"[NEW CONNECTION] {addr} connected.")
-    clients.append(conn)
+    Online_Users.add_user(conn, addr)
 
     try:
         while True:

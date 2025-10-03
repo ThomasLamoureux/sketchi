@@ -27,7 +27,7 @@ class Channel():
             range_1 = 0
 
 
-    def check_channel_updated(self)
+    def check_channel_updated(self):
         check = "AAAAA" # placeholder
 
         if self.channel_random_string != check:
@@ -44,8 +44,8 @@ class Channel():
 
     def open_channel(self):
         if (self.channel_loaded == False):
-            load_cache(0, 50)
-            load_channel()
+            self.load_cache(0, 50)
+            self.load_channel()
 
             if (self.channel_loaded == False):
                 print("Error loading channel.")
@@ -55,22 +55,21 @@ class Channel():
         
 
     
-    def load_messages_up():
+    def load_messages_up(self):
         if (self.message_cache[0] + self.message_cache[1] > 150):
-            load_cache(self.message_cache[0] + 50, self.message_cache[1] + 50)
+            self.load_cache(self.message_cache[0] + 50, self.message_cache[1] + 50)
         else:
-            load_cache(self.message_cache[0], self.message_cache[1] + 50)
+            self.load_cache(self.message_cache[0], self.message_cache[1] + 50)
 
-        load_channel()
+        self.load_channel()
 
 
-    def load_messages_down():
+    def load_messages_down(self):
         if (self.message_cache[0] == 0):
             return
-            
         if (self.message_cache[1] > 150):
-            load_cache(self.message_cache[0] - 50, self.message_cache - 50)
+            self.load_cache(self.message_cache[0] - 50, self.message_cache - 50)
         else:
-            load_cache(self.message_cache[0], self.message_cache[1] + 50)
+            self.load_cache(self.message_cache[0], self.message_cache[1] + 50)
 
-        load_channel()
+        self.load_channel()
