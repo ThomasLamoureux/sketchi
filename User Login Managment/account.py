@@ -1,6 +1,7 @@
 import mysql.connector
 import bcrypt
 
+# Connects to aiven db
 conn = mysql.connector.connect(
     host="mysql-30d350d9-stetson-f3bc.i.aivencloud.com",
     port=21547,
