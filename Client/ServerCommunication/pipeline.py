@@ -11,7 +11,7 @@ client = None
 
 
 def message_listener(client):
-    """Continuously listen for messages from the server."""
+    #Continuously listen for messages from the server.
     while True:
         try:
             msg = client.recv(1024).decode(ENCODING)

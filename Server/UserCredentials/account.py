@@ -18,9 +18,7 @@ CREATE TABLE IF NOT EXISTS Accounts (
 """)
 conn.commit()
 
-def signup():
-    username = input("Choose a username: ")
-    password = input("Choose a password: ").encode("utf-8")
+def signup(username, password):
     hashed = bcrypt.hashpw(password, bcrypt.gensalt())
     try:
         cursor.execute(
@@ -28,22 +26,21 @@ def signup():
             (username, hashed.decode("utf-8"))
         )
         conn.commit()
-        print("Account created successfully!")
+        return 1 # Success
     except mysql.connector.errors.IntegrityError:
-        print("Username already exists. Try another one.")
+        return 0 # Failed
 
-def login():
-    username = input("Enter username: ")
-    password = input("Enter password: ").encode("utf-8")
+def login(username, password):
     cursor.execute(
         "SELECT password FROM Accounts WHERE username=%s",
         (username,)
     )
     row = cursor.fetchone()
     if row and bcrypt.checkpw(password, row[0].encode("utf-8")):
-        print(f"Welcome, {username}!")
+        return 1 # Success
     else:
-        print("Invalid username or password.")
+        return 0 # Failed
+        
 
 while True:
     print("Welcome to Sketchi!")
@@ -52,9 +49,24 @@ while True:
     print("3. Exit")
     choice = input("Choose: ")
     if choice == "1":
-        signup()
+        username = input("Choose a username: ")
+        password = input("Choose a password: ").encode("utf-8")
+
+        result = signup(username, password)
+        if (result == 1):
+            print("Created Account")
+        else:
+            print("That username is taken")
     elif choice == "2":
-        login()
+        username = input("Choose a username: ")
+        password = input("Choose a password: ").encode("utf-8")
+
+        result = login(username, password)
+
+        if (result == 1):
+            print("Success! Welcome, " + username + "!")
+        else:
+            print("Invalid credentials")
     elif choice == "3":
         break
     else:
