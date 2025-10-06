@@ -1,5 +1,5 @@
-import ConnectToServer
-import LoginGUI
+import Login.ConnectToServer as ConnectToServer
+import Login.LoginGUI as LoginGUI
 import tkinter as tk
 
 import ctypes
@@ -15,9 +15,13 @@ def connect(address):
     else:
         lbl_message.config(text="Connecting...", fg="black")
 
-        success()
-        return
-        ConnectToServer.connect(address)
+        connected = ConnectToServer.connect(address)
+
+
+        if connected == 1:
+            success()
+        else:
+            failed()
 
 
 
@@ -26,8 +30,9 @@ def success():
     LoginGUI.run()
 
 
+
 def failed():
-    pass
+    lbl_message.config(text="Failed to connect...", fg="red")
 
 
 

@@ -41,33 +41,33 @@ def login(username, password):
     else:
         return 0 # Failed
         
+if __name__ == "__main__":
+    while True:
+        print("Welcome to Sketchi!")
+        print("\n1. Sign Up")
+        print("2. Login")
+        print("3. Exit")
+        choice = input("Choose: ")
+        if choice == "1":
+            username = input("Choose a username: ")
+            password = input("Choose a password: ").encode("utf-8")
 
-while True:
-    print("Welcome to Sketchi!")
-    print("\n1. Sign Up")
-    print("2. Login")
-    print("3. Exit")
-    choice = input("Choose: ")
-    if choice == "1":
-        username = input("Choose a username: ")
-        password = input("Choose a password: ").encode("utf-8")
+            result = signup(username, password)
+            if (result == 1):
+                print("Created Account")
+            else:
+                print("That username is taken")
+        elif choice == "2":
+            username = input("Choose a username: ")
+            password = input("Choose a password: ").encode("utf-8")
 
-        result = signup(username, password)
-        if (result == 1):
-            print("Created Account")
+            result = login(username, password)
+
+            if (result == 1):
+                print("Success! Welcome, " + username + "!")
+            else:
+                print("Invalid credentials")
+        elif choice == "3":
+            break
         else:
-            print("That username is taken")
-    elif choice == "2":
-        username = input("Choose a username: ")
-        password = input("Choose a password: ").encode("utf-8")
-
-        result = login(username, password)
-
-        if (result == 1):
-            print("Success! Welcome, " + username + "!")
-        else:
-            print("Invalid credentials")
-    elif choice == "3":
-        break
-    else:
-        print("Please try again.")
+            print("Please try again.")

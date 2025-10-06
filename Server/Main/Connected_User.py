@@ -23,3 +23,7 @@ class Connected_User:
 
     def get_id(self):
         return self.id
+
+
+    def set_working_project(self, project):
+        self.current_project = project

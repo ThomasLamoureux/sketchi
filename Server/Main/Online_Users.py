@@ -1,4 +1,4 @@
-from Connected_User import Connected_User
+from Main.Connected_User import Connected_User
 
 
 connected_users = []

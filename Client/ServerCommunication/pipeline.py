@@ -1,6 +1,8 @@
 import socket
 import threading
-import Formatter
+import ServerCommunication.Formatter
+import Login.ConnectToServerGUI
+import ServerCommunication.Message_Handler as Message_Handler
 
 HOST = "127.0.0.1"  # Change to server IP if not local
 PORT = 12345
@@ -18,7 +20,9 @@ def message_listener(client):
             if not msg:
                 break
             print(f"\n{msg}")  # Print server/broadcasted messages
-            print(msg)
+
+            Message_Handler.message_recieved(client, msg)
+
         except:
             print("Connection closed by server.")
             client.close()
@@ -26,16 +30,14 @@ def message_listener(client):
 
 
 def send_message(data_type, data):
+    if not client:
+        return
     message = Formatter.format_message(data_type, data)
 
 
     client.send(message.encode(ENCODING))
 
 
-
-
-def recieve_message(data):
-    pass
 
 
 def main():
@@ -47,13 +49,24 @@ def main():
     thread.daemon = True  # Kills thread when main program exits
     thread.start()
 
-    print("Connected to server. You can start chatting!")
-    while True:
-        msg = input(": ")  # Take user input
-        if msg.lower() == "/quit":
-            client.close()
-            break
-        client.send(msg.encode(ENCODING))
+
+
+def connect(address):
+    address, port = address.split(":")
+    port = int(port)
+
+    try:
+        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client.connect((address, port))
+    except:
+        return -1
+
+        # Start a thread to always listen for server messages
+    thread = threading.Thread(target=message_listener, args=(client,))
+    thread.daemon = True  # Kills thread when main program exits
+    thread.start()
+
+    return 1
 
 if __name__ == "__main__":
-    main()
+    connect(HOST + ":" + str(PORT))

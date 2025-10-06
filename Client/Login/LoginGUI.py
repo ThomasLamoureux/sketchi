@@ -1,8 +1,14 @@
-import Login
+import Login.Login as Login
 import tkinter as tk
 
 import ctypes
 ctypes.windll.shcore.SetProcessDpiAwareness(1)  # Makes it look good
+
+
+global_methods = {}
+
+def global_method(method):
+    global_methods[method]()
 
 
 def run():
@@ -55,6 +61,13 @@ def run():
             lbl_message.config(text="An error occured.", fg="red")
 
 
+    def login_failed():
+        print("failed")
+        lbl_message.config(text="Invalid username or password.", fg="red")
+
+    
+    global_methods["login_failed"] = login_failed
+
 
 
     def switch_to_signup():
@@ -70,14 +83,11 @@ def run():
 
 
 
-
-
     root = tk.Tk()
     root.title("Sketchi Login")
     center_window(root, 340, 360)
     root.resizable(False, False)
     root.configure(bg="#f0f0f0")
-
 
 
     # Container Frame
