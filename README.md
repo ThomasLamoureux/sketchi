@@ -14,3 +14,6 @@ Week 3; 9/15 - 9/21
 
 Week 4; 9/22 - 9/28
 - Development of Messaging Systems - TL
+
+Week 5; 10/6 - 10/10
+- Added changes to the database, for security made them to be hashed by using bcrypt. Also created two new tables in the database. Teams and TeamManager that creates a team 5 or so. Later on the main goal is to have User1 and User2 draw and communicate live time. Will work with backend for this. - LA
