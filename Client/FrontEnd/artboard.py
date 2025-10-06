@@ -1,6 +1,7 @@
 # artboard.py - Artboard drawing functionality
 import customtkinter as ctk
 from tkinter import Canvas
+from tkinter import colorchooser
 
 class SketchiiArtboard:
     def __init__(self, app):
@@ -183,6 +184,19 @@ class SketchiiArtboard:
         
         colors = [self.app.accent_orange, "#000000", "#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff", "#ffffff"]
         
+        picker_button = ctk.CTkButton(left_frame,
+                text="",
+                width=35,
+                height=35,
+                corner_radius=17,
+                fg_color="#FFFFFF",
+                hover_color="#DDDDDD",
+                border_width=2,
+                border_color=self.app.bg_dark,
+                command=lambda c="#FFFFFF": self.change_color(colorchooser.askcolor(title ="Choose color")[1])
+            )
+        picker_button.pack(side="left", padx=3)
+
         for color in colors:
             color_btn = ctk.CTkButton(
                 left_frame,
