@@ -1,7 +1,8 @@
 # sketchi
 
 
-Type 'python -m main' to run
+CD into the server folder and type 'python -m Server' to start server.
+CD into the client folder and type 'python -m client' to start client.
 
 Week 2; 9/8 - 9/14
 - Basic Paint Prototype established - TL
