@@ -1,4 +1,4 @@
-from tkinter import *
+''' from tkinter import 
 from tkinter import colorchooser, ttk
 
 import CanvasUtil
@@ -113,4 +113,4 @@ class Paint_Window:
 win = Tk()
 win.title("Paint App")
 Paint_Window(win)
-win.mainloop()
+win.mainloop() '''

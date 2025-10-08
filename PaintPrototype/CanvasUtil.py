@@ -1,4 +1,4 @@
-def copy_canvas(src_canvas, dest_canvas):
+''' def copy_canvas(src_canvas, dest_canvas):
     
     # Loop through all items in the source canvas
     for item in src_canvas.find_all():
@@ -22,4 +22,4 @@ def copy_canvas(src_canvas, dest_canvas):
         elif item_type == "text":
             dest_canvas.create_text(*coords, **kwargs)
         elif item_type == "polygon":
-            dest_canvas.create_polygon(*coords, **kwargs)
+            dest_canvas.create_polygon(*coords, **kwargs) '''
