@@ -1,4 +1,5 @@
 import customtkinter as ctk #logic 
+import Cache.Cache as Cache
 
 class SketchiFunctionality:
     def __init__(self, app):
@@ -99,7 +100,7 @@ class SketchiFunctionality:
             
             msg_label = ctk.CTkLabel(
                 msg_frame,
-                text=f"You: {message}",
+                text=f"{Cache.get("username")}: {message}",
                 font=ctk.CTkFont(size=13),
                 text_color=self.app.text_color,
                 anchor="w"

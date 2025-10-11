@@ -24,6 +24,14 @@ class Connected_User:
     def get_id(self):
         return self.id
 
+    def get_connection(self):
+        return self.connection
+
 
     def set_working_project(self, project):
         self.current_project = project
+
+
+    def paint(self, args):
+        if self.current_project:
+            pass

@@ -1,5 +1,6 @@
 import Login.ConnectToServer as ConnectToServer
 import Login.LoginGUI as LoginGUI
+import Login.Login as Login
 import tkinter as tk
 
 import ctypes
@@ -27,7 +28,7 @@ def connect(address):
 
 def success():
     root.destroy()
-    LoginGUI.run()
+    Login.run()
 
 
 

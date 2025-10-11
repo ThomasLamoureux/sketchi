@@ -1,2 +1,6 @@
-import Login.ConnectToServerGUI
-import Login.LoginGUI
+
+import FrontEnd.Main as Main
+import threading
+
+
+Main.run()

@@ -1,11 +1,11 @@
 
 
 def format_message(data_type, data):
-    data = ", ".join(data)
+    data = ", ".join(str(d) for d in data)
 
     result = f"{data_type}; {data}"
 
-    return result
+    return result.encode("utf-8")
 
 
 

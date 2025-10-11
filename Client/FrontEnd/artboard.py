@@ -1,6 +1,8 @@
 import customtkinter as ctk
 from tkinter import Canvas
-from color_picker import ColorPicker
+import tkinter
+from FrontEnd.color_picker import ColorPicker
+import ServerCommunication.Pipeline as Pipeline
 
 from PIL import Image, ImageDraw, ImageTk
 
@@ -29,11 +31,13 @@ class SketchiiArtboard:
     def toggle_artboard_mode(self, event=None):
         if not self.artboard_mode:
             self.artboard_mode = True
-            self.app.channel_title_label.configure(text="Artboard")
+            self.app.channel_title_label.configure(text="Exit (Notice: Exiting will currently bug artboard and prevent usage when returning)")
             self.switch_to_artboard()
+
+            # Pipeline.send_message("drawings_request", "")
         else:
             self.artboard_mode = False
-            self.app.channel_title_label.configure(text="Main Chat")
+            self.app.channel_title_label.configure(text="Open Artboard")
             self.switch_to_chat()
 
     def switch_to_artboard(self):
@@ -113,9 +117,6 @@ class SketchiiArtboard:
 
     # tools ui
     def create_drawing_tools(self):
-        
-
-        
         self.tools_frame = ctk.CTkFrame(self.app.main_frame,
                                         fg_color=self.app.bg_medium, corner_radius=10)
         self.tools_frame.pack(fill="x", padx=20, pady=(0, 20))
@@ -226,12 +227,30 @@ class SketchiiArtboard:
           
             self._draw.line((self.last_x, self.last_y, event.x, event.y),
                             fill=(r, g, b, a), width=self.brush_size)
-            #make ends round by drawing little discs
-            rr = self.brush_size / 2
-            self._draw.ellipse((event.x - rr, event.y - rr, event.x + rr, event.y + rr),
-                               fill=(r, g, b, a))
+
             self._refresh_canvas_image()
+
+
+            Pipeline.send_message("draw", [(self.last_x, self.last_y, event.x, event.y),
+                            (r, g, b, a), self.brush_size])
+
+
         self.last_x, self.last_y = event.x, event.y
+
+    def manual_draw(self, data):
+        if self.artboard_mode == False:
+            return
+
+        self._draw.line(data[0], data[1], data[2])
+        self._refresh_canvas_image()
+
+
+    def bulk_draw(self, data):
+        for i in data:
+            self._draw.line(i[0], i[1], i[2])
+
+        self._refresh_canvas_image()
+
 
     def stop_draw(self, event):
         self.drawing = False

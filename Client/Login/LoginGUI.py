@@ -1,9 +1,6 @@
 import Login.Login as Login
 import tkinter as tk
 
-import ctypes
-ctypes.windll.shcore.SetProcessDpiAwareness(1)  # Makes it look good
-
 
 global_methods = {}
 
@@ -32,7 +29,7 @@ def run():
 
         result = Login.validate_credentials(username, password)
 
-
+        return
         if result == 1:
             lbl_message.config(text=f"Welcome back, {username}!", fg="green")
 
@@ -52,6 +49,7 @@ def run():
 
         result = Login.sign_up(username, password)
 
+        return
         if result == 1:
             lbl_message.config(text="Account created! You can now log in.", fg="green")
             switch_to_login()
@@ -65,8 +63,17 @@ def run():
         print("failed")
         lbl_message.config(text="Invalid username or password.", fg="red")
 
+    def login_success():
+        print("success")
+        root.quit()
+
+    def root_destroy():
+        root.destroy()
+
     
     global_methods["login_failed"] = login_failed
+    global_methods["login_success"] = login_success
+    global_methods["root_destroy"] = root_destroy
 
 
 

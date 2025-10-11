@@ -1,6 +1,10 @@
 import customtkinter as ctk
-from functionality import SketchiFunctionality
-from artboard import SketchiiArtboard 
+from FrontEnd.functionality import SketchiFunctionality
+from FrontEnd.artboard import SketchiiArtboard
+
+import Login.ConnectToServer as ConnectToServer
+import Login.Login as Login
+
 
 ctk.set_appearance_mode("dark") #appearence dark mode 
 ctk.set_default_color_theme("blue")
@@ -25,7 +29,141 @@ class SketchiiApp(ctk.CTk):
         self.functionality = SketchiFunctionality(self)
         self.artboard = SketchiiArtboard(self)
         
-        self.create_layout() #main layout
+        #self.create_layout() #main layout
+
+        self.connect_gui()
+
+
+    def login_complete(self):
+        self.create_layout()
+
+
+    def failed_login(self):
+        print("failed login")
+        self.lbl_message.configure(text="Invalid username or password.", text_color="red")
+
+
+    def failed_signup(self):
+        print("failed signup")
+        self.lbl_message.configure(text="Username already exists.", text_color="red")
+
+
+    def login_gui(self):
+        def login(username, password):
+
+            if not username or not password:
+                self.lbl_message.configure(text="Please fill in all fields.", text_color="red")
+                return
+
+            result = Login.validate_credentials(username, password)
+
+            
+
+        def sign_up(username, password):
+
+            if not username or not password:
+                self.lbl_message.configure(text="Please fill in all fields.", text_color="red")
+                return
+
+
+            result = Login.sign_up(username, password)
+
+
+        def switch_to_signup():
+            btn_action.configure(text="Sign Up", command=lambda: sign_up(self.entry_username.get().strip(), self.entry_password.get().strip()))
+            lbl_switch.configure(text="Already have an account?")
+            btn_switch.configure(text="Login", command=switch_to_login)
+            self.lbl_message.configure(text="")
+
+        def switch_to_login():
+            btn_action.configure(text="Login", command=lambda: login(self.entry_username.get().strip(), self.entry_password.get().strip()))
+            lbl_switch.configure(text="Don't have an account?")
+            btn_switch.configure(text="Sign Up", command=switch_to_signup)
+
+            
+        frame = ctk.CTkFrame(self, width=340, height=360, corner_radius=12)
+        frame.place(relx=0.5, rely=0.5, anchor="center")
+
+        # Title
+        lbl_title = ctk.CTkLabel(frame, text="Sketchi", font=ctk.CTkFont(size=18, weight="bold"))
+        lbl_title.pack(pady=15)
+
+        # Username Entry
+        self.entry_username = ctk.CTkEntry(frame, placeholder_text="Username")
+        self.entry_username.pack(pady=10, padx=20, fill="x")
+
+        # Password Entry
+        self.entry_password = ctk.CTkEntry(frame, placeholder_text="Password", show="*")
+        self.entry_password.pack(pady=10, padx=20, fill="x")
+
+        # Message Label
+        self.lbl_message = ctk.CTkLabel(frame, text="", text_color="red")
+        self.lbl_message.pack(pady=5)
+
+        # Login Button
+        btn_action = ctk.CTkButton(
+            frame,
+            text="Login",
+            command=lambda: login(self.entry_username.get().strip(), self.entry_password.get().strip())
+        )
+        btn_action.pack(pady=10, padx=40, fill="x")
+
+        # Switch to Sign Up
+        lbl_switch = ctk.CTkLabel(frame, text="Don't have an account?", font=ctk.CTkFont(size=12))
+        lbl_switch.pack(pady=(10, 0))
+
+
+        btn_switch = ctk.CTkButton(
+            frame,
+            text="Sign Up",
+            command=switch_to_signup,
+            fg_color="transparent",
+            text_color="#2196F3",
+            hover_color="#E3F2FD",
+            font=ctk.CTkFont(size=12, underline=True)
+        )
+        btn_switch.pack(pady=5)
+    
+    def connect(self, entry):
+        success = None
+        
+        try:
+            success = ConnectToServer.connect(entry)
+        except:
+            self.lbl_message.configure(text="Please enter a valid address.", text_color="red")
+            return
+
+        if success == 1:
+            self.login_gui()
+        else:
+            self.lbl_message.configure(text="Failed to connect.", text_color="red")
+
+
+    def connect_gui(self):
+
+        frame = ctk.CTkFrame(self, corner_radius=10, width=300, height=250)
+        frame.place(relx=0.5, rely=0.5, anchor="center")
+
+        # Title
+        lbl_title = ctk.CTkLabel(frame, text="Enter server IP and port", font=ctk.CTkFont(size=14, weight="bold"))
+        lbl_title.pack(pady=(15, 10))
+
+        # IP Entry
+        self.entry_ip = ctk.CTkEntry(frame, placeholder_text="Server IP (e.g., 192.168.0.10:5000)")
+        self.entry_ip.pack(pady=10, padx=20, fill="x")
+
+        # Message Label
+        self.lbl_message = ctk.CTkLabel(frame, text="", text_color="red")
+        self.lbl_message.pack(pady=5)
+
+        # Action Button
+        btn_action = ctk.CTkButton(
+            frame,
+            text="Connect",
+            command=lambda: self.connect(self.entry_ip.get().strip())
+        )
+        btn_action.pack(pady=10, padx=40, fill="x")
+    
         
     def create_layout(self):
         self.server_frame = ctk.CTkFrame( #server reizing 
@@ -109,7 +247,7 @@ class SketchiiApp(ctk.CTk):
         
         self.channel_title_label = ctk.CTkLabel( #clickable chanels to change 
             chat_header,
-            text="Main Chat",
+            text="Open Artboard",
             font=ctk.CTkFont(size=16, weight="bold"),
             text_color=self.text_color,
             cursor="hand2"
@@ -183,6 +321,29 @@ class SketchiiApp(ctk.CTk):
         )
         channel_btn.pack(fill="x", padx=10, pady=3)
 
-if __name__ == "__main__":
+app = None
+
+def run():
+    global app
     app = SketchiiApp()
     app.mainloop()
+
+
+def complete_login():
+    app.login_complete()
+
+
+def manual_draw(data):
+    app.artboard.manual_draw(data)
+
+
+def bulk_draw(data):
+    app.artboard.bulk_draw(data)
+
+
+def failed_login():
+    app.failed_login()
+
+
+def failed_signup():
+    app.failed_signup()
