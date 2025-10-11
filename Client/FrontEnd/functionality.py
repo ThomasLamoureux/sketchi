@@ -97,10 +97,10 @@ class SketchiFunctionality:
                 corner_radius=10
             )
             msg_frame.pack(fill="x", pady=5, padx=10, anchor="w")
-            
+            username = Cache.get("username")
             msg_label = ctk.CTkLabel(
                 msg_frame,
-                text=f"{Cache.get("username")}: {message}",
+                text=f"{username}: {message}",
                 font=ctk.CTkFont(size=13),
                 text_color=self.app.text_color,
                 anchor="w"
