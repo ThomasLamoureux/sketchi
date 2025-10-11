@@ -51,7 +51,7 @@ python -m client
 - Started development of Messaging Systems - TL
 - Basic app GUI established - BW
 - Setup login and server connection with a GUI - TL
-### Week 5; 10/6 - 10/10
+### Week 5/6; 9/29 - 10/10
 - Added changes to the database, for security made them to be hashed by using bcrypt. Also created two new tables in the database. Teams and TeamManager that creates a team 5 or so. Later on the main goal is to have User1 and User2 draw and communicate live time. Will work with backend for this. - LA
 - Revamped app GUI - BW
 - Revamped connection and login GUI - TL
