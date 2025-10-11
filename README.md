@@ -3,13 +3,17 @@
 How To:
 Firstly, clone the repository onto your machine and install dependencies. (customtkiner, pillow, mysql-connector-python, bcrypt)
 
+
 To start the server, open a terminal and open the server directory. (cd command)
-Then run the command "python -m server"
+Then run the command "**python -m server**"
 Make note of the ip address and port number that appears in the terminal.
 
+
 To start the client, open the client directory in a seperate terminal.
-Then run the command "python -m client"
+Then run the command "**python -m client**"
+
 If the server is running on the same device as the client, connect by entering "localhost" and then the port number seperated by a colan (eg, localhost:5000)
+
 If you are connecting from a secondary device, make sure that both devices are on the same network. Enter the ip address of the server device followed by the port seperated by a colon. (eg, 192.0.0.1:5000)
 
 
