@@ -6,7 +6,7 @@ import Main.Formatter as Formatter
 
 # Server configuration
 HOST = "0.0.0.0"  # Listen on all available network interfaces
-PORT = 12345      # Choose a port number > 1024
+PORT = 5005      # Choose a port number > 1024
 
 
 def user_connected(conn, address):
