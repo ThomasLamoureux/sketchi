@@ -18,7 +18,6 @@ def user_connected(conn, address):
             msg = conn.recv(1024).decode("utf-8")
             if not msg:
                 break  # Client disconnected
-            print(f"[{address}] {msg}")
 
             # Echo message back to all clients
             #for client in clients:

@@ -4,10 +4,7 @@ import Login.Login as Login
 
 
 def message_recieved(conn, message):
-    print(message)
     msg_type, data = Formatter.decode(message)
-
-    print(msg_type, data)
 
 
     if msg_type == "login":

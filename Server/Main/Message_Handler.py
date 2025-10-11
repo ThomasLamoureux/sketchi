@@ -5,7 +5,6 @@ import Main.TempCanvas as TempCanvas
 
 def message_recieved(conn, address, message):
     msg_type, data = Formatter.decode(message)
-    print(msg_type, data)
 
     if msg_type == "login":
         print("Login attempt")
