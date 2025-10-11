@@ -69,7 +69,7 @@ def start_server():
     try:
         hostname = socket.gethostname()
         ip_address = socket.gethostbyname(hostname)
-        print(f"Your computer's local IP address is: {ip_address}")
+        print(f"Your computer's local IP address is: {ip_address}, port number is: {PORT}")
     except socket.gaierror:
         print("Could not resolve hostname to an IP address.")
 
