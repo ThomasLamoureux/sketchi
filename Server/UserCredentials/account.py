@@ -2,20 +2,22 @@ import mysql.connector
 import bcrypt
 
 conn = mysql.connector.connect(
-    host="mysql-30d350d9-stetson-f3bc.i.aivencloud.com",
-    port=21547,
-    user="avnadmin",
-    password="AVNS_Dz1ct-QA5R6g5E3iM3T",
-    database="defaultdb"
+    host="localhost",
+    port=3306,
+    user="root",
+    password="Trinity123",
+    database="sketchi_db"
 )
 cursor = conn.cursor()
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS Accounts (
     Username VARCHAR(255) PRIMARY KEY,
+    Email VARCHAR(255) UNIQUE NOT NULL,
     Password VARCHAR(255) NOT NULL
 )
 """)
+
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS Teams (
     TeamID INT AUTO_INCREMENT PRIMARY KEY,
@@ -24,6 +26,7 @@ CREATE TABLE IF NOT EXISTS Teams (
     FOREIGN KEY (CreatedBy) REFERENCES Accounts(Username)
 )
 """)
+
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS TeamMembers (
     TeamID INT,
@@ -36,11 +39,12 @@ CREATE TABLE IF NOT EXISTS TeamMembers (
 conn.commit()
 
 def signup(username, password):
-    hashed = bcrypt.hashpw(password, bcrypt.gensalt())
+    email = "filler@fake.com".encode("utf-8")
+    hashed = bcrypt.hashpw(password, bcrypt.gensalt()).decode("utf-8")
     try:
         cursor.execute(
-            "INSERT INTO Accounts (username, password) VALUES (%s, %s)",
-            (username, hashed.decode("utf-8"))
+            "INSERT INTO Accounts (Username, Email, Password) VALUES (%s, %s, %s)",
+            (username, email, hashed)
         )
         conn.commit()
         return 1
@@ -49,7 +53,7 @@ def signup(username, password):
 
 def login(username, password):
     cursor.execute(
-        "SELECT password FROM Accounts WHERE username=%s",
+        "SELECT Password FROM Accounts WHERE Username=%s",
         (username,)
     )
     row = cursor.fetchone()
@@ -87,22 +91,23 @@ if __name__ == "__main__":
             print("3. Exit")
             choice = input("Choose: ")
             if choice == "1":
-                username = input("Choose a username: ")
-                password = input("Choose a password: ").encode("utf-8")
-                result = signup(username, password)
+                username = input("Enter a username: ")
+                email = input("Enter Email: ")
+                password = input("Enter a password: ")
+                result = signup(username, email, password)
                 if result == 1:
-                    print("Created Account")
+                    print("Account Created!")
                 else:
-                    print("That username is taken")
+                    print("That username or email is taken.")
             elif choice == "2":
                 username = input("Enter username: ")
-                password = input("Enter password: ").encode("utf-8")
+                password = input("Enter password: ")
                 result = login(username, password)
                 if result == 1:
                     current_user = username
                     print(f"Success! Welcome, {username}!")
                 else:
-                    print("Invalid credentials")
+                    print("Invalid credentials.")
             elif choice == "3":
                 break
             else:
