@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS TeamMembers (
 conn.commit()
 
 def signup(username, password):
-    email = "filler@fake.com".encode("utf-8")
+    email = ("" + username + "@placeholder.com").encode("utf-8")
     hashed = bcrypt.hashpw(password, bcrypt.gensalt()).decode("utf-8")
     try:
         cursor.execute(
@@ -94,7 +94,7 @@ if __name__ == "__main__":
                 username = input("Enter a username: ")
                 email = input("Enter Email: ")
                 password = input("Enter a password: ")
-                result = signup(username, email, password)
+                result = signup(username.encode("utf-8"), password.encode("utf-8"))
                 if result == 1:
                     print("Account Created!")
                 else:
@@ -102,7 +102,7 @@ if __name__ == "__main__":
             elif choice == "2":
                 username = input("Enter username: ")
                 password = input("Enter password: ")
-                result = login(username, password)
+                result = login(username.encode("utf-8"), password.encode("utf-8"))
                 if result == 1:
                     current_user = username
                     print(f"Success! Welcome, {username}!")
