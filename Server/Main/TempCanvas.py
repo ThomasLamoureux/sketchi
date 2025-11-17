@@ -11,7 +11,7 @@ def draw(client_id, data):
         "drawing_data": data
     }
     print("YEs")
-    asyncio.create_task(Server.send_message_all(payload, []))
+    asyncio.create_task(Server.send_message_all(payload, [client_id]))
 
 def request_drawings(conn):
     for i in drawings:
