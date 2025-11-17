@@ -33,6 +33,8 @@ def user_connected(conn, address):
         conn.close()
 
 
+
+
 def send_message_all(data_type, data, exceptions):
     msg = Formatter.format_message(data_type, data)
 

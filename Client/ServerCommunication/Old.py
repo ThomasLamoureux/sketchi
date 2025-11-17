@@ -1,8 +1,8 @@
-import socket
-import threading
-import ServerCommunication.Formatter as Formatter
+#import socket
+#import threading
+#import ServerCommunication.Formatter as Formatter
 #import Login.ConnectToServerGUI as ConnectToServerGUI
-import ServerCommunication.Message_Handler as Message_Handler
+#import ServerCommunication.Message_Handler as Message_Handler
 
 HOST = "127.0.0.1"  # Change to server IP if not local
 PORT = 12345

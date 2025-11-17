@@ -1,4 +1,6 @@
 import customtkinter as ctk
+import asyncio
+import ServerCommunication.Client as Client
 from FrontEnd.functionality import SketchiFunctionality
 from FrontEnd.artboard import SketchiiArtboard
 
@@ -6,8 +8,15 @@ import Login.ConnectToServer as ConnectToServer
 import Login.Login as Login
 
 
+import tracemalloc
+tracemalloc.start()
+
+
 ctk.set_appearance_mode("dark") #appearence dark mode 
 ctk.set_default_color_theme("blue")
+
+
+loop = None
 
 class SketchiiApp(ctk.CTk):
     def __init__(self):
@@ -28,6 +37,7 @@ class SketchiiApp(ctk.CTk):
         
         self.functionality = SketchiFunctionality(self)
         self.artboard = SketchiiArtboard(self)
+        self.connecting = False
         
         #self.create_layout() #main layout
 
@@ -46,6 +56,16 @@ class SketchiiApp(ctk.CTk):
     def failed_signup(self):
         print("failed signup")
         self.lbl_message.configure(text="Username already exists.", text_color="red")
+
+
+    def failed_connection(self):
+        print("failed connection")
+        self.lbl_message.configure(text="Failed to connect.", text_color="red")
+    
+
+    def success_connection(self):
+        print("successful connection")
+        self.login_gui()
 
 
     def login_gui(self):
@@ -125,18 +145,27 @@ class SketchiiApp(ctk.CTk):
         btn_switch.pack(pady=5)
     
     def connect(self, entry):
-        success = None
-        
         try:
-            success = ConnectToServer.connect(entry)
-        except:
+            global loop
+            host = entry.split(":")[0]
+            port = int(entry.split(":")[1])
+            print(loop)
+            #asyncio.run_coroutine_threadsafe(Client.init(host, port), loop)
+            Client.send_connection_request(host, port)
+            print("Continues")
+            print("Loop running:", loop.is_running())
+            print("Loop running:", loop.is_running())
+            print("Loop running:", loop.is_running())
+        except Exception as err:
+            print(err)
             self.lbl_message.configure(text="Please enter a valid address.", text_color="red")
             return
 
-        if success == 1:
-            self.login_gui()
-        else:
-            self.lbl_message.configure(text="Failed to connect.", text_color="red")
+        #if success == 1:
+        #    self.login_gui()
+        #else:
+        #    self.lbl_message.configure(text="Failed to connect.", text_color="red")
+
 
 
     def connect_gui(self):

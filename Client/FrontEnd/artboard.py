@@ -1,8 +1,9 @@
+import asyncio
 import customtkinter as ctk
 from tkinter import Canvas
 import tkinter
 from FrontEnd.color_picker import ColorPicker
-import ServerCommunication.Pipeline as Pipeline
+import ServerCommunication.Client as Client
 
 from PIL import Image, ImageDraw, ImageTk
 
@@ -230,9 +231,15 @@ class SketchiiArtboard:
 
             self._refresh_canvas_image()
 
-
-            Pipeline.send_message("draw", [(self.last_x, self.last_y, event.x, event.y),
-                            (r, g, b, a), self.brush_size])
+            data = {
+                "msg_type": "draw_line",
+                "line": (self.last_x, self.last_y, event.x, event.y),
+                "color": (r, g, b, a),
+                "size": self.brush_size
+            }
+            
+            asyncio.create_task(Client.send_message(data))
+    
 
 
         self.last_x, self.last_y = event.x, event.y

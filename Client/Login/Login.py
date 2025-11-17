@@ -1,16 +1,29 @@
-import ServerCommunication.Pipeline as Pipeline
+import ServerCommunication.Client as Client
 import Cache.Cache as Cache
 import FrontEnd.Main as GUI
 import tkinter as tk
 
 
 def validate_credentials(username, password):
-    Pipeline.send_message("login", [username, password])
+    payload = {
+        "msg_type": "login",
+        "username": username,
+        "password": password
+    }
+
+    Client.send_message(payload)
 
 
 
 def sign_up(username, password):
-    Pipeline.send_message("signup", [username, password])
+    payload = {
+        "msg_type": "sign_up",
+        "username": username,
+        "password": password
+    }
+
+    Client.send_message(payload)
+
 
 
 def sign_up_confirmation(data):

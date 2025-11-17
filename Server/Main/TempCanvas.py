@@ -16,7 +16,7 @@ def request_drawings(conn):
 
     return
 
-    print(drawings)
+
     if len(drawings) == 0:
         return
 

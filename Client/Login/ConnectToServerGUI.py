@@ -7,7 +7,7 @@ import ctypes
 ctypes.windll.shcore.SetProcessDpiAwareness(1)  # Makes it look good
 
 
-
+print("Starting Connect to Server GUI")
 def connect(address):
 
     if not address:
