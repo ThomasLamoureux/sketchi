@@ -3,7 +3,8 @@ import json
 import struct
 import uuid
 
-#import FrontEnd.Main as GUI
+import ServerCommunication.Message_Handler as Message_Handler
+import FrontEnd.Main as GUI
 
 MSG_HDR = struct.Struct("!I")  # 4-byte big-endian length prefix
 
@@ -14,6 +15,7 @@ connection_request = None
 host = None
 port = None
 
+connecting = False
 
 class Client():
     def __init__(self, host, port):
@@ -25,6 +27,7 @@ class Client():
 
 
     async def connect(self, reconnect = True):
+        global connecting
         print(f"Connecting to {self.HOST}:{self.PORT} ...")
         while True:
             try:
@@ -32,7 +35,9 @@ class Client():
                 self.reader, self.writer = await asyncio.open_connection(self.HOST, self.PORT)
                 print("Connected!")
                 if reconnect == False:
-                    pass#GUI.success_connection()
+                    
+                    connecting = False
+                    GUI.success_connection()
 
                 # identify
                 identify_msg = {"type": "identify", "client_id": self.CLIENT_ID}
@@ -48,7 +53,9 @@ class Client():
             except Exception as e:
                 print("HELLOOOOO")
                 if reconnect == False:
-                    pass#GUI.failed_connection()
+                    connecting = False
+                    GUI.failed_connection()
+                    break
                 print("Connection error:", e)
                 await asyncio.sleep(3)  # retry delay
 
@@ -69,10 +76,16 @@ class Client():
     async def handle_server_message(self, msg, writer):
         msg_id = msg.get("msg_id")
         payload = msg.get("payload")
+        msg_type = payload.get("msg_type")
+        print(msg_type)
         print(f"[SERVER MSG] id={msg_id} payload={payload}")
 
+
+        Message_Handler.message_recieved(msg_type, payload)
         # Here you would process the payload (e.g. display to user, trigger logic)
         # Once processed successfully, send ACK:
+
+        return
         if msg_id:
             ack = {"type": "ack", "msg_id": msg_id}
             await self.write_message(writer, ack)
@@ -89,6 +102,7 @@ class Client():
                     try:
                         while True:
                             msg = await self.read_message(self.reader)
+                            print("Message received:", msg)
                             mtype = msg.get("type")
                             if mtype == "server_msg":
                                 await self.handle_server_message(msg, self.writer)
@@ -146,14 +160,22 @@ async def init(host, port):
     await client.connect(False)
     print("test2")
 
-
-async def send_message(payload, message_type="client_msg"):
-    global client
-
+send_queue = []
+def send_message(payload, message_type="client_msg"):
     msg_id = str(uuid.uuid4())
     msg = {"type": message_type, "msg_id": msg_id, "payload": payload}
 
-    await client.write_message(client.writer, msg)
+    send_queue.append(msg)
+    return
+    global client
+    print("ran?")
+    msg_id = str(uuid.uuid4())
+    msg = {"type": message_type, "msg_id": msg_id, "payload": payload}
+
+    asyncio.run_coroutine_threadsafe(client.write_message(client.writer, msg), loop)
+
+
+
 
 
 
@@ -166,19 +188,27 @@ async def loop():
     global host_request
     global port_request
     global connection_request
+    global connecting
+
+    global send_queue
 
     while True:
-        await asyncio.sleep(0.1)
-        
+        await asyncio.sleep(0.01)
         if connection_request == True:
             connection_request = False
-            
+            connecting = True
 
             host = str(host_request)
             port = int(port_request)
 
             await init(host, port)
-            break
+        
+
+        if len(send_queue) > 0:
+            while len(send_queue) > 0:
+                message = send_queue.pop(0)
+                asyncio.create_task(client.write_message(client.writer, message))
+
 
 
 def send_connection_request(host, port):

@@ -75,7 +75,9 @@ class SketchiiApp(ctk.CTk):
                 self.lbl_message.configure(text="Please fill in all fields.", text_color="red")
                 return
 
-            result = Login.validate_credentials(username, password)
+
+
+            Login.validate_credentials(username, password)
 
             
 
@@ -86,7 +88,7 @@ class SketchiiApp(ctk.CTk):
                 return
 
 
-            result = Login.sign_up(username, password)
+            Login.sign_up(username, password)
 
 
         def switch_to_signup():
@@ -376,3 +378,11 @@ def failed_login():
 
 def failed_signup():
     app.failed_signup()
+
+
+def failed_connection():
+    app.failed_connection()
+
+
+def success_connection():
+    app.success_connection()

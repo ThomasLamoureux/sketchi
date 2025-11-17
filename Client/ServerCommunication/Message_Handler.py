@@ -3,38 +3,29 @@ import FrontEnd.Main as GUI
 import Login.Login as Login
 
 
-def message_recieved(conn, message):
-    msg_type, data = Formatter.decode(message)
-
+def message_recieved(msg_type, payload: dict):
 
     if msg_type == "login":
         print("Recieved, login")
-        Login.login_confirmation(data)
+
+        success = payload.get("success")
+        
+        username = payload.get("username")
+        Login.login_confirmation(success, username)
+
     elif msg_type == "signup":
         print("Recieved, signup")
-        Login.sign_up_confirmation(data)
-    elif msg_type == "draw":
+
+        success = payload.get("success")
+
+        username = payload.get("username")
+        Login.sign_up_confirmation(success, username)
         
-        result = []
-        temp = []
+    elif msg_type == "draw":
+        drawing_data = payload.get("drawing_data")
 
-        for item in data:
-            # Remove parentheses if present
-            clean = item.replace("(", "").replace(")", "")
-            
-            if "(" in item:  # start of a tuple
-                temp = [int(clean)]
-            elif ")" in item:  # end of a tuple
-                temp.append(int(clean))
-                result.append(tuple(temp))
-                temp = []
-            elif temp:  # inside a tuple
-                temp.append(int(clean))
-            else:  # standalone number
-                result.append(int(clean))
-
-
-        GUI.manual_draw(result)
+        print(drawing_data)
+        GUI.manual_draw(drawing_data)
 
 
     elif msg_type == "bulk_draw":

@@ -2,6 +2,7 @@ import ServerCommunication.Client as Client
 import Cache.Cache as Cache
 import FrontEnd.Main as GUI
 import tkinter as tk
+import asyncio
 
 
 def validate_credentials(username, password):
@@ -15,34 +16,35 @@ def validate_credentials(username, password):
 
 
 
+
 def sign_up(username, password):
     payload = {
-        "msg_type": "sign_up",
+        "msg_type": "signup",
         "username": username,
         "password": password
     }
-
+    print("erm?")
     Client.send_message(payload)
+    print("SENT!?")
 
 
+def sign_up_confirmation(success, username=None):
+    print("Confirmation recieved")
+    if success == False:
+         GUI.failed_signup()
+         return
 
-def sign_up_confirmation(data):
-    if data[0] == "-1":
-        GUI.failed_signup()
-        return
-
-    username = data[1]
     Cache.add("username", username)
 
     GUI.complete_login()
 
 
-def login_confirmation(data):
-    if data[0] == "-1":
+def login_confirmation(success, username=None):
+    print("Confirmation recieved")
+    if success == False:
          GUI.failed_login()
          return
 
-    username = data[1]
     Cache.add("username", username)
 
     GUI.complete_login()

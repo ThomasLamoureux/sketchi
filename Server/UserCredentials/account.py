@@ -48,7 +48,8 @@ def signup(username, password):
         )
         conn.commit()
         return 1
-    except mysql.connector.errors.IntegrityError:
+    except mysql.connector.errors.IntegrityError as e:
+        print("IntegrityError:", e)
         return 0
 
 def login(username, password):

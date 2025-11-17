@@ -227,18 +227,21 @@ class SketchiiArtboard:
             a = int(255 * max(0.0, min(1.0, self.brush_opacity)))
           
             self._draw.line((self.last_x, self.last_y, event.x, event.y),
-                            fill=(r, g, b, a), width=self.brush_size)
+                            fill=(r, g, b, a), 
+                            width=self.brush_size)
 
             self._refresh_canvas_image()
 
-            data = {
+            payload = {
                 "msg_type": "draw_line",
-                "line": (self.last_x, self.last_y, event.x, event.y),
-                "color": (r, g, b, a),
-                "size": self.brush_size
+                "drawing_data": {
+                    "line": (self.last_x, self.last_y, event.x, event.y),
+                    "color": (r, g, b, a),
+                    "size": self.brush_size
+                }
             }
-            
-            asyncio.create_task(Client.send_message(data))
+
+            Client.send_message(payload)
     
 
 
@@ -248,7 +251,9 @@ class SketchiiArtboard:
         if self.artboard_mode == False:
             return
 
-        self._draw.line(data[0], data[1], data[2])
+        self._draw.line(tuple(data.get("line")),
+                        fill=tuple(data.get("color")),
+                        width=data.get("size"))
         self._refresh_canvas_image()
 
 

@@ -2,6 +2,9 @@ import asyncio
 import json
 import struct
 import uuid
+
+import Main.Message_Handler as Message_Handler
+
 from typing import Dict
 
 from threading import Thread
@@ -22,7 +25,7 @@ class Server():
 
         self.MSG_HDR = struct.Struct("!I")  # 4-byte big-endian length header
 
-
+        host = "0.0.0.0"
         server = await asyncio.start_server(self.handle_connection, host, port)
         addrs = ", ".join(str(sock.getsockname()) for sock in server.sockets)
         print(f"Serving on {addrs}")
@@ -100,19 +103,26 @@ class Server():
                 msg = await self.read_message(reader)
                 mtype = msg.get("type")
 
-                if mtype == "client_msg":
-                    payload = msg.get("payload")
-                    # create server-side message id (for example for acknowledgment of processing)
-                    server_msg_id = str(uuid.uuid4())
+                try:
+                    if mtype == "client_msg":
+                        payload: dict = msg.get("payload")
+                        msgtype = payload.get("msg_type")
+                        # create server-side message id (for example for acknowledgment of processing)
+                        server_msg_id = str(uuid.uuid4())
+                    
+                        Message_Handler.message_recieved(client_id, msgtype, payload)
 
-                    # send a confirmation message back to client via their queue
-                    outmsg = {"type": "server_msg", "msg_id": server_msg_id, "payload": {"status":"ok","orig_id": msg.get("msg_id")}}
+                        # send a confirmation message back to client via their queue
+                        #outmsg = {"type": "server_msg", "msg_id": server_msg_id, "payload": {"status":"ok","orig_id": msg.get("msg_id")}}
 
-                    print(payload)
+                        print(payload)
 
-                    await send_queue.put(outmsg)
-                else:
-                    print("Unknown message type", mtype)
+                        #await send_queue.put(outmsg)
+                    else:
+                        print("Unknown message type", mtype)
+                except Exception as e:
+                    print("Message handling exception:", e)
+                    
         except asyncio.IncompleteReadError:
             print("Client closed connection", client_id)
         except Exception as e:
@@ -143,16 +153,28 @@ class Server():
             # client offline: message will remain in DB until they reconnect
             print("Client offline; message queued in outbox for", client_id)
 
-    async def hello(self):
-        return "hello"
+    async def send_all_clients(self, payload: dict, exceptions: list):
+        print("OK???")
+        for client_id, send_queue in self.clients.items():
+            print(client_id)
+            if client_id in exceptions:
+                continue
+            msg_id = str(uuid.uuid4())
+            await send_queue.put({"type":"server_msg", "msg_id": msg_id, "payload": payload})
 
 
 # Globally accessible function for sending messages
 async def send_message(client_id, payload):
     await server.send_to_client(client_id, payload)
 
+async def send_message_all(payload, exceptions):
+    print("OK???")
+    await server.send_all_clients(payload, exceptions)
 
-if __name__ == "__main__":
+
+
+def start_server():
+    global server
     try:
         server = Server()
         def run():
@@ -163,6 +185,9 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("Server stopped")
 
+
+if __name__ == "__main__":
+    start_server()
 
 
 

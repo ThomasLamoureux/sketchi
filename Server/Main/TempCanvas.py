@@ -1,14 +1,17 @@
-import Main.Server as Server
+import asyncio
+import Main.NewServer as Server
 
 drawings = []
 
 
-def draw(conn, data):
+def draw(client_id, data):
     drawings.append(data)
-
-    Server.send_message_all("draw", data, [conn])
-
-
+    payload = {
+        "msg_type": "draw",
+        "drawing_data": data
+    }
+    print("YEs")
+    asyncio.create_task(Server.send_message_all(payload, []))
 
 def request_drawings(conn):
     for i in drawings:

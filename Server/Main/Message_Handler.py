@@ -3,16 +3,26 @@ import Main.Login as Login
 import Main.TempCanvas as TempCanvas
 
 
-def message_recieved(conn, address, message):
-    msg_type, data = Formatter.decode(message)
-
+def message_recieved(client_id, msg_type, payload):
     if msg_type == "login":
         print("Login attempt")
-        Login.login(conn, address, data[0], data[1])
+
+        username = payload.get("username")
+        password = payload.get("password")
+
+        Login.login(client_id, username, password)
+
     elif msg_type == "signup":
         print("Signup attempt")
-        Login.sign_up(conn, address, data[0], data[1])
-    elif msg_type == "draw":
-        TempCanvas.draw(conn, data)
+
+        username = payload.get("username")
+        password = payload.get("password")
+
+        Login.sign_up(client_id, username, password)
+
+    elif msg_type == "draw_line":
+        print("DRAWING")
+        TempCanvas.draw(client_id, payload.get("drawing_data"))
+
     elif msg_type == "drawings_request":
-        TempCanvas.request_drawings(conn)
+        TempCanvas.request_drawings(client_id)
