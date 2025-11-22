@@ -14,13 +14,18 @@ def init():
     config = configparser.ConfigParser()
     config.read(config_file)
 
-    conn = mysql.connector.connect(
-        host=config.get('mysql', 'host'),
-        port=config.getint('mysql', 'port'),
-        user=config.get('mysql', 'user'),
-        password=config.get('mysql', 'password'),
-        database=config.get('mysql', 'database')
-    )
+    try:
+        conn = mysql.connector.connect(
+            host=config.get('mysql', 'host'),
+            port=config.getint('mysql', 'port'),
+            user=config.get('mysql', 'user'),
+            password=config.get('mysql', 'password'),
+            database=config.get('mysql', 'database')
+        )
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        print("Please check your database configuration.")
+        return
 
     cursor = conn.cursor()
 
