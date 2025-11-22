@@ -1,5 +1,5 @@
 import ServerCommunication.Formatter as Formatter
-import FrontEnd.Main as GUI
+import FrontEnd.gui as GUI
 import Login.Login as Login
 
 

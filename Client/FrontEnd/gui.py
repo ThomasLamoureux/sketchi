@@ -3,13 +3,7 @@ import asyncio
 import ServerCommunication.Client as Client
 from FrontEnd.functionality import SketchiFunctionality
 from FrontEnd.artboard import SketchiiArtboard
-
-import Login.ConnectToServer as ConnectToServer
-import Login.Login as Login
-
-
-import tracemalloc
-tracemalloc.start()
+import ServerCommunication.Login as Login
 
 
 ctk.set_appearance_mode("dark") #appearence dark mode 

@@ -3,8 +3,8 @@ import json
 import struct
 import uuid
 
-import ServerCommunication.Message_Handler as Message_Handler
-import FrontEnd.Main as GUI
+import ServerCommunication.message_reciever as message_reciever
+import FrontEnd.gui as GUI
 
 MSG_HDR = struct.Struct("!I")  # 4-byte big-endian length prefix
 
@@ -51,7 +51,6 @@ class Client():
 
                 break
             except Exception as e:
-                print("HELLOOOOO")
                 if reconnect == False:
                     connecting = False
                     GUI.failed_connection()
@@ -81,7 +80,7 @@ class Client():
         print(f"[SERVER MSG] id={msg_id} payload={payload}")
 
 
-        Message_Handler.message_recieved(msg_type, payload)
+        message_reciever.recieved_message(payload)
         # Here you would process the payload (e.g. display to user, trigger logic)
         # Once processed successfully, send ACK:
 
@@ -115,23 +114,9 @@ class Client():
                     except Exception as e:
                         print("Read loop error:", e)
 
-                """async def send_task():
-                    try:
-                        while True:
-                            await asyncio.sleep(5)  # simulate sending every 5 seconds
-                            payload = {"text": "Hello from client"}
-                            msg_id = str(uuid.uuid4())
-                            msg = {"type": "client_msg", "msg_id": msg_id, "payload": payload}
-                            await self.write_message(self.writer, msg)
-                            print(f"[SENT] client_msg id={msg_id}")
-                    except asyncio.CancelledError:
-                        return
-                    except Exception as e:
-                        print("Send loop error:", e)"""
 
                 reader_task = asyncio.create_task(read_task())
 
-                print("HELLOOOO")
                 # Keep running until disconnected
                 await asyncio.wait([reader_task], return_when=asyncio.FIRST_COMPLETED)
 
@@ -154,36 +139,21 @@ async def init(host, port):
     global client
     
     client = Client(host, port)
-    print("test")
 
-    #await client.connect(False)
+
     await client.connect(False)
-    print("test2")
 
 send_queue = []
+
 def send_message(payload, message_type="client_msg"):
     msg_id = str(uuid.uuid4())
     msg = {"type": message_type, "msg_id": msg_id, "payload": payload}
 
     send_queue.append(msg)
-    return
-    global client
-    print("ran?")
-    msg_id = str(uuid.uuid4())
-    msg = {"type": message_type, "msg_id": msg_id, "payload": payload}
-
-    asyncio.run_coroutine_threadsafe(client.write_message(client.writer, msg), loop)
 
 
 
-
-
-
-
-if __name__ == "__main__":
-    asyncio.run(init("127.0.0.1", 6700))
-
-# fuckass loop i need because buttons dont wanna fucking work
+# This loop handles all message requests because gui loop will interfere with asyncio.
 async def loop():
     global host_request
     global port_request
@@ -210,7 +180,7 @@ async def loop():
                 asyncio.create_task(client.write_message(client.writer, message))
 
 
-
+# Requests a connection to the server.
 def send_connection_request(host, port):
     global connection_request
     global host_request

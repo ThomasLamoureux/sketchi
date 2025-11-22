@@ -1,6 +1,6 @@
 import ServerCommunication.Client as Client
 import Cache.Cache as Cache
-import FrontEnd.Main as GUI
+import FrontEnd.gui as GUI
 import tkinter as tk
 import asyncio
 
