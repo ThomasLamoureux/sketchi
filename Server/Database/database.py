@@ -2,15 +2,15 @@ import mysql.connector
 import bcrypt
 import configparser
 
-conn
-cursor
+conn = None
+cursor = None
 
 
 def init():
     global conn
     global cursor
 
-    config_file = 'Server/Database/config.ini'
+    config_file = 'Database/config.ini'
     config = configparser.ConfigParser()
     config.read(config_file)
 

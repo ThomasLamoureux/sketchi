@@ -1,6 +1,6 @@
 import Main.Formatter as Formatter
 import Main.Login as Login
-import Main.TempCanvas as TempCanvas
+import Main.Paint_Project as Paint_Project
 
 
 def message_recieved(client_id, msg_type, payload):
@@ -22,7 +22,8 @@ def message_recieved(client_id, msg_type, payload):
 
     elif msg_type == "draw_line":
         print("DRAWING")
-        TempCanvas.draw(client_id, payload.get("drawing_data"))
+        Paint_Project.draw(client_id, payload.get("drawing_data"))
 
     elif msg_type == "drawings_request":
-        TempCanvas.request_drawings(client_id)
+
+        Paint_Project.request_drawings(client_id)

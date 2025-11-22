@@ -1,4 +1,4 @@
-import UserCredentials.account as account
+import Database.database as account
 import Main.Formatter as Formatter
 import Main.NewServer as Server
 import asyncio
