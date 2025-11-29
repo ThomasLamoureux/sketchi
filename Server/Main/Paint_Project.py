@@ -1,31 +1,6 @@
 import asyncio
 import uuid
-import Main.NewServer as Server
-
-drawings = []
-
-
-def draw(client_id, data):
-    drawings.append(data)
-    payload = {
-        "msg_type": "draw",
-        "drawing_data": data
-    }
-
-    asyncio.create_task(Server.send_message_all(payload, [client_id]))
-
-def request_drawings(conn):
-    for i in drawings:
-        Server.send_message(conn, "draw", i)
-
-    return
-
-
-    if len(drawings) == 0:
-        return
-
-    
-    Server.send_message(conn, "bulk_draw", drawings)
+import Main.server as server
 
 
 class PaintProject:
@@ -47,7 +22,7 @@ class PaintProject:
             "drawing_data": data
         }
 
-        asyncio.create_task(Server.send_message_all(payload, [client_id]))
+        asyncio.create_task(server.send_message_all(payload, [client_id]))
 
     def change_owner(self, new_owner_id):
         self.owner_id = new_owner_id
@@ -72,6 +47,6 @@ class PaintProject:
                 "drawing_data": data
             }
 
-            asyncio.create_task(Server.send_message(client_id, payload))
+            asyncio.create_task(server.send_message(client_id, payload))
 
             await asyncio.sleep(0.1) # prevent overload

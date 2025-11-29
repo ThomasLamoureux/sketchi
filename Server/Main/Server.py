@@ -1,82 +1,200 @@
-import socket
-import threading
-import Main.Online_Users as Online_Users
-import Main.Message_Handler as Message_Handler
-import Main.Formatter as Formatter
+import asyncio
+import json
+import struct
+import uuid
+from typing import Dict
 
-# Server configuration
-HOST = "0.0.0.0"  # Listen on all available network interfaces
-PORT = 5005      # Choose a port number > 1024
+import Main.message_handler as message_handler
+from Main.user_account import UserAccount
 
 
-def user_connected(conn, address):
-    Online_Users.add_user(conn, address)
-    print("New connection:", address)
+server = None
 
-    try:
-        while True:
-            msg = conn.recv(1024).decode("utf-8")
-            if not msg:
-                break  # Client disconnected
 
-            # Echo message back to all clients
-            #for client in clients:
-             #   if client != conn:
-              #      client.sendall(f"{addr}: {msg}".encode("utf-8"))
+class Server():
 
-            Message_Handler.message_recieved(conn, address, msg)
-    except ConnectionResetError:
+    def __init__(self):
         pass
-    finally:
-        print(f"[DISCONNECTED] {address}")
-        Online_Users.remove_user(conn)
-        conn.close()
+
+
+    async def start(self, host, port):
+        self.clients: Dict[str, asyncio.Queue] = {}  # client_id -> send-queue
+        self.writers: Dict[str, asyncio.StreamWriter] = {}  # active client writers
+        self.accounts: Dict[str, UserAccount] = {}  # client_id -> account info
+
+        self.MSG_HDR = struct.Struct("!I")  # 4-byte big-endian length header
+
+        server = await asyncio.start_server(self.handle_connection, host, port)
+        addrs = ", ".join(str(sock.getsockname()) for sock in server.sockets)
+        print(f"Serving on {addrs}")
+        import socket
+
+        hostname = socket.gethostname()
+        ip = socket.gethostbyname(hostname)
+        print("Local IP:", ip)
+        async with server:
+            await server.serve_forever()
 
 
 
+    async def read_message(self, reader: asyncio.StreamReader) -> dict:
+        raw = await reader.readexactly(self.MSG_HDR.size)
+        (length,) = self.MSG_HDR.unpack(raw)
+        payload = await reader.readexactly(length)
+        return json.loads(payload.decode('utf-8'))
+    
+    
+    async def write_message(self, writer: asyncio.StreamWriter, obj: dict):
+        b = json.dumps(obj, separators=(",", ":")).encode()
+        writer.write(self.MSG_HDR.pack(len(b)))
+        writer.write(b)
+        await writer.drain()
 
-def send_message_all(data_type, data, exceptions):
-    msg = Formatter.format_message(data_type, data)
 
-    for i in Online_Users.get_all():
+    # message sender task per client
+    async def client_sender_task(self, client_id: str, writer: asyncio.StreamWriter, send_queue: asyncio.Queue):
         try:
-            conn = i.get_connection()
-            if conn in exceptions:
+
+            # then send queued messages
+            while True:
+                msg = await send_queue.get()
+                await self.write_message(writer, msg)
+        except (asyncio.IncompleteReadError, ConnectionResetError, BrokenPipeError):
+            # connection dropped; sender task will exit and the writer removed elsewhere
+            pass
+        finally:
+            # cleanup done by main connection handler
+            return
+
+     #application-level handler for each connection
+    async def handle_connection(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
+        peer = writer.get_extra_info('peername')
+        print("New connection from", peer)
+        client_id = None
+        sender_task = None
+
+        try:
+            # Expect client to send an initial IDENTIFY message: {"type":"identify","client_id":"..."}
+            msg = await self.read_message(reader)
+            if msg.get("type") != "identify" or "client_id" not in msg:
+                print("Bad identify; closing")
+                writer.close()
+                await writer.wait_closed()
+                return
+
+            client_id = msg["client_id"]
+            print(f"Client identified: {client_id} from {peer}")
+
+            # Setup writer queue
+            send_queue = self.clients.get(client_id)
+            if send_queue == None:
+                send_queue = asyncio.Queue()
+                self.clients[client_id] = send_queue
+                self.accounts[client_id] = {}
+
+            self.writers[client_id] = writer
+
+            # start a task to drain send_queue and push to client
+            sender_task = asyncio.create_task(self.client_sender_task(client_id, writer, send_queue))
+
+            # main read loop processing client messages
+            while True:
+                msg = await self.read_message(reader)
+                mtype = msg.get("type")
+
+                try:
+                    if mtype == "client_msg":
+                        payload: dict = msg.get("payload")
+                        msgtype = payload.get("msg_type")
+                        # create server-side message id (for example for acknowledgment of processing)
+                        server_msg_id = str(uuid.uuid4())
+                    
+                        message_handler.message_recieved(client_id, msgtype, payload)
+
+                        # send a confirmation message back to client via their queue
+                        #outmsg = {"type": "server_msg", "msg_id": server_msg_id, "payload": {"status":"ok","orig_id": msg.get("msg_id")}}
+
+                        print(payload)
+
+                        #await send_queue.put(outmsg)
+                    else:
+                        print("Unknown message type", mtype)
+                except Exception as e:
+                    print("Message handling exception:", e)
+                    
+        except asyncio.IncompleteReadError:
+            print("Client closed connection", client_id)
+        except Exception as e:
+            print("Connection handler exception:", e)
+        finally:
+            # cleanup
+            if client_id:
+                self.writers.pop(client_id, None)
+                self.clients.pop(client_id, None)
+                self.accounts.pop(client_id, None)
+            if sender_task:
+                sender_task.cancel()
+            try:
+                writer.close()
+                await writer.wait_closed()
+            except:
+                pass
+            print("Connection closed for", client_id)
+            
+    # API to send a message to any connected client (server code or other background tasks)
+    async def send_to_client(self, client_id: str, payload: dict):
+        # create message id and persist before queuing
+        msg_id = str(uuid.uuid4())
+
+        send_queue = self.clients.get(client_id)
+        if send_queue:
+            await send_queue.put({"type":"server_msg", "msg_id": msg_id, "payload": payload})
+        else:
+            # client offline: message will remain in DB until they reconnect
+            print("Client offline; message queued in outbox for", client_id)
+
+    async def send_many_clients(self, client_ids: list, payload: dict):
+        for client_id in client_ids:
+            msg_id = str(uuid.uuid4())
+            send_queue = self.clients.get(client_id)
+            if send_queue:
+                await send_queue.put({"type":"server_msg", "msg_id": msg_id, "payload": payload})
+
+
+    async def send_all_clients(self, payload: dict, exceptions: list):
+        for client_id, send_queue in self.clients.items():
+            print(client_id)
+            if client_id in exceptions:
                 continue
-
-            i.get_connection().sendall(msg)
-        except:
-            print("Error sending")
+            msg_id = str(uuid.uuid4())
+            await send_queue.put({"type":"server_msg", "msg_id": msg_id, "payload": payload})
 
 
-def send_message(conn, data_type, data):
-    msg = Formatter.format_message(data_type, data)
+# Globally accessible function for sending messages
+async def send_message(client_id, payload):
+    await server.send_to_client(client_id, payload)
 
-    try:
-        conn.sendall(msg)
-    except:
-        print("failed")
+async def send_message_all(payload, exceptions):
+    await server.send_all_clients(payload, exceptions)
+
 
 
 def start_server():
-    print("[STARTING] Server is starting...")
-
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.bind((HOST, PORT))
-    server.listen()
-    print(f"[LISTENING] Server running on {HOST}:{PORT}")
-
-
+    global server
     try:
-        hostname = socket.gethostname()
-        ip_address = socket.gethostbyname(hostname)
-        print(f"Your computer's local IP address is: {ip_address}, port number is: {PORT}")
-    except socket.gaierror:
-        print("Could not resolve hostname to an IP address.")
+        server = Server()
+        def run(): # I don't know why I have this as a method but its probably important
+            asyncio.run(server.start("0.0.0.0", 6700))
+            print("Started")
+        run()
+
+    except KeyboardInterrupt:
+        print("Server stopped")
 
 
-    while True:
-        conn, addr = server.accept()
-        thread = threading.Thread(target=user_connected, args=(conn, addr))
-        thread.start()
-        print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
+if __name__ == "__main__":
+    start_server()
+
+
+
+

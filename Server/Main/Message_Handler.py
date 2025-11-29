@@ -1,29 +1,23 @@
-import Main.Formatter as Formatter
-import Main.Login as Login
-import Main.Paint_Project as Paint_Project
+import Main.login as login
+import Main.paint_project_handler as paint_project_handler
 
 
 def message_recieved(client_id, msg_type, payload):
     if msg_type == "login":
-        print("Login attempt")
-
         username = payload.get("username")
         password = payload.get("password")
 
-        Login.login(client_id, username, password)
+        login.login(client_id, username, password)
 
     elif msg_type == "signup":
-        print("Signup attempt")
-
         username = payload.get("username")
         password = payload.get("password")
 
-        Login.sign_up(client_id, username, password)
+        login.sign_up(client_id, username, password)
 
     elif msg_type == "draw_line":
-        print("DRAWING")
-        Paint_Project.draw(client_id, payload.get("drawing_data"))
+        paint_project_handler.draw(client_id, payload.get("drawing_data"))
 
     elif msg_type == "drawings_request":
 
-        Paint_Project.request_drawings(client_id)
+        paint_project_handler.request_drawings(client_id)

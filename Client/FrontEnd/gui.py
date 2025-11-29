@@ -145,13 +145,9 @@ class SketchiiApp(ctk.CTk):
             global loop
             host = entry.split(":")[0]
             port = int(entry.split(":")[1])
-            print(loop)
-            #asyncio.run_coroutine_threadsafe(Client.init(host, port), loop)
+
+
             Client.send_connection_request(host, port)
-            print("Continues")
-            print("Loop running:", loop.is_running())
-            print("Loop running:", loop.is_running())
-            print("Loop running:", loop.is_running())
         except Exception as err:
             print(err)
             self.lbl_message.configure(text="Please enter a valid address.", text_color="red")

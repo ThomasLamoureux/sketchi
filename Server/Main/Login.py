@@ -1,6 +1,5 @@
 import Database.database as account
-import Main.Formatter as Formatter
-import Main.NewServer as Server
+import Main.server as server
 import asyncio
 
 
@@ -15,13 +14,13 @@ def login(client_id, username, password):
             "success": True
         }
 
-        asyncio.create_task(Server.send_message(client_id, payload))
+        asyncio.create_task(server.send_message(client_id, payload))
     else:
         payload = {
             "msg_type": "login",
             "success": False
         }
-        asyncio.create_task(Server.send_message(client_id, payload))
+        asyncio.create_task(server.send_message(client_id, payload))
 
 
 
@@ -36,10 +35,10 @@ def sign_up(client_id, username, password):
             "success": True
         }
 
-        asyncio.create_task(Server.send_message(client_id, payload))
+        asyncio.create_task(server.send_message(client_id, payload))
     else:
         payload = {
             "msg_type": "signup",
             "success": False
         }
-        asyncio.create_task(Server.send_message(client_id, payload))
+        asyncio.create_task(server.send_message(client_id, payload))

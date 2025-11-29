@@ -1,4 +1,4 @@
-import Main.NewServer as Server
+import Main.server as server
 
 
-Server.start_server()
+server.start_server()
