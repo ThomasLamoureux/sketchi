@@ -1,6 +1,5 @@
-import ServerCommunication.Formatter as Formatter
 import FrontEnd.gui as GUI
-import Login.Login as Login
+import Client.ServerCommunication.Login as Login
 
 
 def message_recieved(msg_type, payload: dict):
