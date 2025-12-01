@@ -12,8 +12,9 @@ def message_recieved(client_id, msg_type, payload):
     elif msg_type == "signup":
         username = payload.get("username")
         password = payload.get("password")
+        requires_verification = payload.get("verification_on")
 
-        login.sign_up(client_id, username, password)
+        login.sign_up(client_id, username, password, requires_verification)
 
     elif msg_type == "draw_line":
         paint_project_handler.draw(client_id, payload.get("drawing_data"))

@@ -16,7 +16,8 @@ def recieved_message(payload: dict):
         success = payload.get("success")
 
         username = payload.get("username")
-        Login.sign_up_confirmation(success, username)
+        verification_required = payload.get("verification_on")
+        Login.sign_up_confirmation(success, username, verification_required)
         
     elif msg_type == "draw":
         drawing_data = payload.get("drawing_data")

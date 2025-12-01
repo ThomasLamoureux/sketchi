@@ -4,7 +4,7 @@ import struct
 import uuid
 
 import ServerCommunication.message_reciever as message_reciever
-import FrontEnd.gui as GUI
+from FrontEnd import gui as GUI
 
 MSG_HDR = struct.Struct("!I")  # 4-byte big-endian length prefix
 
@@ -34,10 +34,7 @@ class Client():
                 print("Trying to connect...")
                 self.reader, self.writer = await asyncio.open_connection(self.HOST, self.PORT)
                 print("Connected!")
-                if reconnect == False:
-                    
-                    connecting = False
-                    GUI.success_connection()
+
 
                 # identify
                 identify_msg = {"type": "identify", "client_id": self.CLIENT_ID}
@@ -48,12 +45,16 @@ class Client():
 
                 asyncio.create_task(self.client_loop())
 
+                if reconnect == False:
+                    
+                    connecting = False
+                    GUI.app.success_connection()
 
                 break
             except Exception as e:
                 if reconnect == False:
                     connecting = False
-                    GUI.failed_connection()
+                    GUI.app.failed_connection()
                     break
                 print("Connection error:", e)
                 await asyncio.sleep(3)  # retry delay
@@ -124,7 +125,7 @@ class Client():
                 #sender_task.cancel()
                 self.writer.close()
                 await self.writer.wait_closed()
-                self.connect()
+                await self.connect()
 
             except ConnectionRefusedError:
                 print("Connection refused, retrying in 3s...")

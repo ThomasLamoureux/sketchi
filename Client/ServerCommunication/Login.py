@@ -23,28 +23,28 @@ def sign_up(username, password):
         "username": username,
         "password": password
     }
-    print("erm?")
+
     Client.send_message(payload)
-    print("SENT!?")
 
 
-def sign_up_confirmation(success, username=None):
+
+def sign_up_confirmation(success, username=None, verfication_required=None):
     print("Confirmation recieved")
     if success == False:
-         GUI.failed_signup()
+         GUI.app.failed_signup()
          return
 
     Cache.add("username", username)
 
-    GUI.complete_login()
+    GUI.app.sign_up_complete(verfication_required)
 
 
 def login_confirmation(success, username=None):
     print("Confirmation recieved")
     if success == False:
-         GUI.failed_login()
+         GUI.app.failed_login()
          return
 
     Cache.add("username", username)
 
-    GUI.complete_login()
+    GUI.app.complete_login()

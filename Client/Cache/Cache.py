@@ -8,8 +8,15 @@ def add(key, value):
 
 
 def get(key):
-    return cache[key]
+    try:
+        return cache[key]
+    except KeyError:
+        return None
+    
 
 
 def remove(key):
-    cache[key] = None
+    try:
+        del cache[key]      
+    except KeyError:
+        pass
