@@ -34,6 +34,12 @@ def new_paint_project(client_id, owner_username):
     project.add_client(client_id)
     asyncio.create_task(server.send_message(client_id, payload))
 
+def project_message(client_id, text):
+    for project in active_projects:
+        if client_id in project.active_clients:
+            project.project_message(client_id, text)
+            return
+
 
 def join_art_project(client_id, owner, code):
     for project in active_projects:
@@ -42,11 +48,16 @@ def join_art_project(client_id, owner, code):
             if project.request_join(code):
                 print("Join attempt successful.")
                 project.add_client(client_id)
-                payload = {
+                art_payload = {
                     "msg_type": "join_art_project_response",
                     "success": True
                 }
-                asyncio.create_task(server.send_message(client_id, payload))
+                messages_payload = {
+                    "msg_type": "all_project_messages",
+                    "messages": project.messages
+                }
+                asyncio.create_task(server.send_message(client_id, art_payload))
+                asyncio.create_task(server.send_message(client_id, messages_payload))
                 asyncio.create_task(project.request_drawings(client_id))
                 return True
             else:

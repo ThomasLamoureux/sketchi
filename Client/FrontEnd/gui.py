@@ -1,4 +1,5 @@
 # Main.py - Sketchi Application Entry Point (With Animated Logo)
+import asyncio
 import customtkinter as ctk
 from tkinter import Canvas, colorchooser
 from PIL import Image, ImageTk, ImageDraw
@@ -40,7 +41,7 @@ class AnimatedLogo(ctk.CTkLabel):
         self.load_static_logo()
         
         # Load video frames
-        self.load_video_frames()
+        asyncio.create_task(self.load_video_frames())
         
         # Show static logo initially
         self.show_static_logo()
@@ -79,7 +80,7 @@ class AnimatedLogo(ctk.CTkLabel):
             self.static_logo = ImageTk.PhotoImage(img)
             self.configure(fg_color="transparent")
     
-    def load_video_frames(self):
+    async def load_video_frames(self):
         """Load all frames from the video"""
         if not os.path.exists(self.video_path):
             print(f"Video not found: {self.video_path}")
@@ -703,7 +704,7 @@ class ChannelsFrame(ctk.CTkFrame):
         self.pack_propagate(False)
         
         self.channels = ["#mainchat", "#artchat", "#artsharing", "#artcontest"]
-        self.mini_messages = ["Hey!", "Nice drawing"]
+        self.mini_messages = []
         
         self.current_mode = "channels"
         self.show_channels()
@@ -834,24 +835,34 @@ class ChannelsFrame(ctk.CTkFrame):
     def send_mini_message(self, event=None):
         text = self.mini_entry.get().strip()
         if text:
-            self.mini_messages.append(text)
-            
-            msg_frame = ctk.CTkFrame(
-                self.mini_messages_frame,
-                fg_color=self.app.bg_light,
-                corner_radius=8
-            )
-            msg_frame.pack(fill="x", pady=2)
-            
-            msg_label = ctk.CTkLabel(
-                msg_frame,
-                text=text,
-                font=("Segoe UI", 11),
-                wraplength=160
-            )
-            msg_label.pack(padx=8, pady=8)
-            
-            self.mini_entry.delete(0, "end")
+            self.write_mini_message(text)
+            payload = {
+                "msg_type": "project_message",
+                "text": text
+            }
+            Client.send_message(payload)
+    
+    def write_mini_message(self, text):
+        if (self.current_mode != "mini_chat"):
+            return
+        self.mini_messages.append(text)
+        
+        msg_frame = ctk.CTkFrame(
+            self.mini_messages_frame,
+            fg_color=self.app.bg_light,
+            corner_radius=8
+        )
+        msg_frame.pack(fill="x", pady=2)
+        
+        msg_label = ctk.CTkLabel(
+            msg_frame,
+            text=text,
+            font=("Segoe UI", 11),
+            wraplength=160
+        )
+        msg_label.pack(padx=8, pady=8)
+        
+        self.mini_entry.delete(0, "end")
             
     def switch_to_mini_chat(self):
         self.current_mode = "mini_chat"
@@ -883,8 +894,8 @@ class SketchiApp(ctk.CTk):
         self.active_channel = "#mainchat"
         
         # Paths for logo and animation (same folder as Main.py)
-        self.logo_image_path = "FrontEnd/sketchi_logo.png"
-        self.animation_video_path = "FrontEnd/loading_screen.mp4"
+        self.logo_image_path = "Resources/sketchi_logo.png"
+        self.animation_video_path = "Resources/loading_screen.mp4"
         
         self.friends = [
             {"name": "Thomas", "status": "online"},

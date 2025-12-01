@@ -39,3 +39,12 @@ def recieved_message(payload: dict):
         success = payload.get("success")
         reason = payload.get("reason", None)
         GUI.app.artboard.join_art_project_response(success, reason)
+
+    elif msg_type == "project_message":
+        text = payload.get("text")
+        GUI.app.channels_frame.write_mini_message(text)
+
+    elif msg_type == "all_project_messages":
+        messages = payload.get("messages")
+        for i in messages:
+            GUI.app.channels_frame.write_mini_message(i)

@@ -11,6 +11,7 @@ class PaintProject:
         self.owner_username = owner_username
         self.project_id = uuid.uuid4()
         self.project_password = access_code
+        self.messages = []
 
     
     def draw(self, client_id, data):
@@ -64,6 +65,18 @@ class PaintProject:
         send_clients = self.active_clients.copy()
         send_clients.remove(client_id)
 
+        asyncio.create_task(server.send_message_many(send_clients, payload))
+
+    def project_message(self, client_id, text):
+        payload = {
+            "msg_type": "project_message",
+            "text": text,
+        }
+
+        self.messages.append(text)
+
+        send_clients = self.active_clients.copy()
+        send_clients.remove(client_id)
         asyncio.create_task(server.send_message_many(send_clients, payload))
 
 

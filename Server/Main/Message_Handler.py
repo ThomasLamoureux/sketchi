@@ -45,3 +45,6 @@ def message_recieved(client_id, msg_type, payload):
         
 
         paint_project_handler.new_paint_project(client_id, owner_username)
+
+    elif msg_type == "project_message":
+        paint_project_handler.project_message(client_id, payload.get("text"))
