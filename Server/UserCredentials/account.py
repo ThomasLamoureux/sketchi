@@ -9,7 +9,7 @@ conn = mysql.connector.connect(
     database="sketchi_db"
 )
 cursor = conn.cursor()
-
+# Adding database fields 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS Accounts (
     account_id INT AUTO_INCREMENT PRIMARY KEY,
