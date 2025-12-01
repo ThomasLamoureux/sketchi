@@ -12,6 +12,8 @@ import Cache.Cache as Cache
 import ServerCommunication.Credentials as Credentials
 import ServerCommunication.Main_Client as Main_Client
 
+from FrontEnd.diamond_color_picker import DiamondColorPicker
+
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
@@ -676,7 +678,9 @@ class SketchiArtboard(ctk.CTkFrame):
         self.select_color("#ffffff")
         
     def open_color_picker(self):
-        picker = ColorPickerWindow(self, self.current_color, self.on_color_selected)
+        picker = DiamondColorPicker(self, self.current_color, self.on_color_selected)
+
+        #picker = ColorPickerWindow(self, self.current_color, self.on_color_selected)
         
     def on_color_selected(self, color):
         self.current_color = color
