@@ -2,6 +2,8 @@ import mysql.connector
 import bcrypt
 import secrets
 
+from Server.Main import EmailVerification
+
 conn = mysql.connector.connect(
     host="localhost",
     port=3306,
@@ -46,7 +48,7 @@ CREATE TABLE IF NOT EXISTS TeamMembers (
 conn.commit()
 
 def signup(username, password, email):
-    verification_code = secrets.token_hex(3)  # 6 random hex characters
+    verification_code = EmailVerification.generate_verification_code()
  
     hashed = bcrypt.hashpw(password, bcrypt.gensalt()).decode("utf-8")
 

@@ -11,3 +11,7 @@ class UserAccount:
 
     def get_projects(self):
         pass
+
+
+    def get_username(self):
+        return self.username

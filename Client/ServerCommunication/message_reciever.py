@@ -21,8 +21,21 @@ def recieved_message(payload: dict):
         
     elif msg_type == "draw":
         drawing_data = payload.get("drawing_data")
+        GUI.app.artboard.manual_draw(drawing_data)
 
-        print(drawing_data)
-        GUI.manual_draw(drawing_data)
+    elif msg_type == "verification_attempt":
+        success = payload.get("success")
+        GUI.app.verification_attempt_response(success)
 
+    elif msg_type == "created_paint_project":
+        access_code = payload.get("access_code")
+        GUI.app.artboard.created_art_project(access_code)
 
+    elif msg_type == "bulk_draw":
+        drawing_data = payload.get("drawing_data")
+        GUI.app.artboard.bulk_draw(drawing_data)
+
+    elif msg_type == "join_art_project_response":
+        success = payload.get("success")
+        reason = payload.get("reason", None)
+        GUI.app.artboard.join_art_project_response(success, reason)

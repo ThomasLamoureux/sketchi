@@ -373,9 +373,34 @@ class SketchiArtboard(ctk.CTkFrame):
         #self.setup_ui()
         self.project_join_gui()
 
+
+    def created_art_project(self, access_code):
+        Cache.add("art_project_access_code", access_code)
+        self.app.channels_frame.access_code.configure(text=f"Access Code:\n{access_code}")
+        self.setup_ui()
+
+    def join_art_project_response(self, success, reason=None):
+        if success:
+            self.setup_ui()
+        else:
+            self.lbl_message.configure(text=f"Join Failed: {reason}")
+
+
     def project_join_gui(self):
         def request_art_project(owner, code):
-            pass
+            Client.send_message(
+                payload={
+                    "msg_type": "join_art_project",
+                    "owner": owner,
+                    "code": code
+                }
+            )
+        def create_art_project():
+            payload = {
+                "msg_type": "create_art_project",
+            }
+
+            Client.send_message(payload)
 
             
         frame = ctk.CTkFrame(self, width=340, height=360, corner_radius=12)
@@ -409,7 +434,7 @@ class SketchiArtboard(ctk.CTkFrame):
         btn_switch = ctk.CTkButton(
             frame,
             text="Create New Project",
-            command=request_art_project,
+            command=create_art_project,
             fg_color="transparent",
             text_color="#2196F3",
             hover_color="#E3F2FD",
@@ -482,7 +507,7 @@ class SketchiArtboard(ctk.CTkFrame):
         sliders_frame = ctk.CTkFrame(tools_frame, fg_color="transparent")
         sliders_frame.pack(side="left", fill="both", expand=True, padx=20)
         
-        opacity_container = ctk.CTkFrame(sliders_frame, fg_color="transparent")
+        """opacity_container = ctk.CTkFrame(sliders_frame, fg_color="transparent")
         opacity_container.pack(fill="x", pady=5)
         
         ctk.CTkLabel(
@@ -512,7 +537,7 @@ class SketchiArtboard(ctk.CTkFrame):
             anchor="e"
         )
         self.opacity_label.pack(side="left")
-        
+        """
         brush_container = ctk.CTkFrame(sliders_frame, fg_color="transparent")
         brush_container.pack(fill="x", pady=5)
         
@@ -527,8 +552,8 @@ class SketchiArtboard(ctk.CTkFrame):
         self.brush_slider = ctk.CTkSlider(
             brush_container,
             from_=1,
-            to=30,
-            number_of_steps=29,
+            to=100,
+            number_of_steps=99,
             command=self.update_brush_size
         )
         self.brush_slider.set(3)
@@ -580,8 +605,13 @@ class SketchiArtboard(ctk.CTkFrame):
         
     def draw(self, event):
         if self.is_drawing and self.last_x and self.last_y:
+            drawing_data = {
+                "line": (self.last_x, self.last_y, event.x, event.y),
+                "fill": self.current_color,
+                "brush_size": self.brush_size
+            }
             self.canvas.create_line(
-                self.last_x, self.last_y, event.x, event.y,
+                (self.last_x, self.last_y, event.x, event.y),
                 fill=self.current_color,
                 width=self.brush_size,
                 capstyle="round",
@@ -590,11 +620,34 @@ class SketchiArtboard(ctk.CTkFrame):
             
             self.last_x = event.x
             self.last_y = event.y
+
+            payload = {
+                "msg_type": "draw",
+                "drawing_data": drawing_data
+            }
+            Client.send_message(payload)
             
     def stop_drawing(self, event):
         self.is_drawing = False
         self.last_x = None
         self.last_y = None
+
+    def manual_draw(self, drawing_data):
+        line = drawing_data["line"]
+        fill = drawing_data["fill"]
+        brush_size = drawing_data["brush_size"]
+        
+        self.canvas.create_line(
+            line,
+            fill=fill,
+            width=brush_size,
+            capstyle="round",
+            smooth=True
+        )
+
+    def bulk_draw(self, drawings):
+        for drawing_data in drawings:
+            self.manual_draw(drawing_data)
         
     def select_color(self, color):
         self.current_color = color
@@ -706,10 +759,31 @@ class ChannelsFrame(ctk.CTkFrame):
             
         self.configure(width=200)
         
+        details_frame = ctk.CTkFrame(self, fg_color="transparent", height=100)
+        details_frame.pack(side="top", expand=True)
+
+
+        self.access_code = ctk.CTkLabel(
+            details_frame,
+            text=f"Access Code:\n{Cache.get('art_project_access_code')}",
+            font=("Segoe UI", 14, "bold"),
+            justify="center"
+        )
+        self.access_code.pack(pady=10)
+
+        self.active_artists_frame = ctk.CTkScrollableFrame(
+            self,
+            fg_color="transparent"
+        )
+        self.active_artists_frame.pack(fill="both", expand=True, padx=10, pady=10)
+
         header = ctk.CTkFrame(self, height=50, fg_color=self.app.bg_medium)
         header.pack(fill="x", pady=(0, 1))
         header.pack_propagate(False)
+
+
         
+
         title = ctk.CTkLabel(
             header,
             text="Quick Chat",
@@ -717,6 +791,8 @@ class ChannelsFrame(ctk.CTkFrame):
         )
         title.pack(padx=15, pady=15)
         
+
+
         self.mini_messages_frame = ctk.CTkScrollableFrame(
             self,
             fg_color="transparent"
@@ -860,6 +936,15 @@ class SketchiApp(ctk.CTk):
         print("successful connection")
         self.login_gui()
 
+    
+    def incorrect_verification(self):
+        print("incorrect verification")
+        self.lbl_message.configure(text="Incorrect verification code.", text_color="red")
+
+    def successful_verification(self):
+        print("successful verification")
+        self.complete_login()
+
 
     def verification_gui(self):
         self.clear_gui()
@@ -907,18 +992,18 @@ class SketchiApp(ctk.CTk):
 
             
 
-        def sign_up(username, password):
+        def sign_up(email, username, password):
 
-            if not username or not password:
+            if not email or not username or not password:
                 self.lbl_message.configure(text="Please fill in all fields.", text_color="red")
                 return
 
 
-            Login.sign_up(username, password)
+            Login.sign_up(email, username, password)
 
 
         def switch_to_signup():
-            btn_action.configure(text="Sign Up", command=lambda: sign_up(self.entry_username.get().strip(), self.entry_password.get().strip()))
+            btn_action.configure(text="Sign Up", command=lambda: sign_up(self.entry_email.get().strip(), self.entry_username.get().strip(), self.entry_password.get().strip()))
             lbl_switch.configure(text="Already have an account?")
             btn_switch.configure(text="Login", command=switch_to_login)
             self.lbl_message.configure(text="")

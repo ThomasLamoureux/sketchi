@@ -17,13 +17,14 @@ def validate_credentials(username, password):
 
 
 
-def sign_up(username, password):
+def sign_up(email, username, password):
     payload = {
         "msg_type": "signup",
+        "email": email,
         "username": username,
         "password": password
     }
-
+    print("Requesting sign up")
     Client.send_message(payload)
 
 

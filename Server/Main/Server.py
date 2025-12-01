@@ -90,7 +90,7 @@ class Server():
             if send_queue == None:
                 send_queue = asyncio.Queue()
                 self.clients[client_id] = send_queue
-                self.accounts[client_id] = {}
+                self.accounts[client_id] = None
 
             self.writers[client_id] = writer
 
@@ -169,6 +169,9 @@ class Server():
             msg_id = str(uuid.uuid4())
             await send_queue.put({"type":"server_msg", "msg_id": msg_id, "payload": payload})
 
+    def set_account(self, client_id: str, username: str):
+        self.accounts[client_id] = UserAccount(client_id, username)
+
 
 # Globally accessible function for sending messages
 async def send_message(client_id, payload):
@@ -176,6 +179,9 @@ async def send_message(client_id, payload):
 
 async def send_message_all(payload, exceptions):
     await server.send_all_clients(payload, exceptions)
+
+async def send_message_many(client_ids, payload):
+    await server.send_many_clients(client_ids, payload)
 
 
 

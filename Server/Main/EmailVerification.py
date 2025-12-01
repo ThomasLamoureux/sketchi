@@ -1,11 +1,28 @@
+import configparser
+import secrets
 import smtplib
 from email.message import EmailMessage
 
+import Database.database as database
+
+config_file = 'Server/Config_Files/email_config.ini'
+config = configparser.ConfigParser()
+config.read(config_file)
+
+verification_enabled = config.getboolean('email', 'verification_enabled', fallback=True)
 
 
-def send_verification_email(to_email, verification_code):
-    server_email = "dankdomtom@gmail.com"
-    server_password = "plit fdlu loxt tlka"
+debug_mode = True
+
+
+async def send_verification_email(to_email, verification_code):
+
+    if debug_mode:
+        print(f"(Debug Mode) Sending verification code {verification_code} to {to_email}")
+        return
+
+    server_email = config.get('email', 'server_email')
+    server_password = config.get('email', 'server_password')
 
     msg = EmailMessage()
     msg['Subject'] = 'Sketchi Email Verification'
@@ -24,4 +41,21 @@ def send_verification_email(to_email, verification_code):
         print(f"Failed to send email: {e}") 
 
 
-send_verification_email("understarlightyoushine@gmail.com", "123456")
+def generate_verification_code():
+    verification_code = secrets.token_hex(3).upper()
+
+    return verification_code
+
+
+def check_verification_enabled():
+    return verification_enabled
+
+
+def verification_attempt(username, code):
+    stored_code = database.get_data_from_account(username, "Email_Verification_Code")
+
+    if stored_code == code:
+        database.set_data_in_account(username, "Email_Verified", True)
+        return True
+    else:
+        return False
