@@ -12,7 +12,7 @@ config.read(config_file)
 verification_enabled = config.getboolean('email', 'verification_enabled', fallback=True)
 
 
-debug_mode = True
+debug_mode = False
 
 
 async def send_verification_email(to_email, verification_code):
