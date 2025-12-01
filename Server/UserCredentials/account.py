@@ -1,5 +1,6 @@
 import mysql.connector
 import bcrypt
+import secrets
 
 conn = mysql.connector.connect(
     host="localhost",
@@ -19,7 +20,8 @@ CREATE TABLE IF NOT EXISTS Accounts (
     Email_Verified BOOLEAN DEFAULT FALSE,
     Email_Verification_Code VARCHAR(255),
     Projects JSON,
-    Friends JSON
+    Friends JSON,
+    Profile_Picture LONGBLOB
 )
 """)
 
@@ -44,14 +46,22 @@ CREATE TABLE IF NOT EXISTS TeamMembers (
 conn.commit()
 
 def signup(username, password, email):
-    verification_code = "67694201738"  # swtich 
-
+    verification_code = secrets.token_hex(3)  # 6 random hex characters
+ 
     hashed = bcrypt.hashpw(password, bcrypt.gensalt()).decode("utf-8")
+
+    picture_path = input("Enter path to profile picture (or press Enter to skip): ")
+
+    if picture_path.strip() == "":
+        picture_data = None
+    else:
+        with open(picture_path, "rb") as f:
+            picture_data = f.read()
 
     try:
         cursor.execute(
-    "INSERT INTO Accounts (Username, Email, Password, Email_Verified, Email_Verification_Code, Projects, Friends) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-    (username, email, hashed, False, verification_code, "{}", "[]")
+            "INSERT INTO Accounts (Username, Email, Password, Email_Verified, Email_Verification_Code, Projects, Friends, Profile_Picture) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+            (username, email, hashed, False, verification_code, "{}", "[]", picture_data)
         )
         conn.commit()
 
@@ -61,6 +71,7 @@ def signup(username, password, email):
     except mysql.connector.errors.IntegrityError as e:
         print("IntegrityError:", e)
         return 0
+
 
 def login(username, password):
     cursor.execute(
