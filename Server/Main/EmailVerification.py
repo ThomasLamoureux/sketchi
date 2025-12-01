@@ -5,7 +5,7 @@ from email.message import EmailMessage
 
 import Database.database as database
 
-config_file = 'Server/Config_Files/email_config.ini'
+config_file = 'Config_Files/email_config.ini'
 config = configparser.ConfigParser()
 config.read(config_file)
 
@@ -20,7 +20,7 @@ async def send_verification_email(to_email, verification_code):
     if debug_mode:
         print(f"(Debug Mode) Sending verification code {verification_code} to {to_email}")
         return
-
+    print(f"Sending {verification_code} to {to_email}")
     server_email = config.get('email', 'server_email')
     server_password = config.get('email', 'server_password')
 

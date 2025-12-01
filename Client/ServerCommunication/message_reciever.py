@@ -25,7 +25,10 @@ def recieved_message(payload: dict):
 
     elif msg_type == "verification_attempt":
         success = payload.get("success")
-        GUI.app.verification_attempt_response(success)
+        if (success):
+            GUI.app.successful_verification()
+        else:
+            GUI.app.incorrect_verification()
 
     elif msg_type == "created_paint_project":
         access_code = payload.get("access_code")

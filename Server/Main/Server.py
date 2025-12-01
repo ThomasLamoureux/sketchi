@@ -4,7 +4,7 @@ import struct
 import uuid
 from typing import Dict
 
-import Main.message_handler as message_handler
+import Main.Message_Handler as message_handler
 from Main.user_account import UserAccount
 
 

@@ -36,7 +36,8 @@ def sign_up(client_id, username, email, password):
         payload = {
             "msg_type": "signup",
             "username": username,
-            "success": True
+            "success": True,
+            "verification_on": EmailVerification.check_verification_enabled()
         }
 
         server.server.set_account(client_id, username)

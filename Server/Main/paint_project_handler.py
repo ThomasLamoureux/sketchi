@@ -1,7 +1,7 @@
 import asyncio
 import secrets
 
-from Main.paint_project import PaintProject
+from Main.Paint_Project import PaintProject
 import Main.server as server
 
 active_projects: PaintProject = []

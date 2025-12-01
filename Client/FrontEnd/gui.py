@@ -958,8 +958,9 @@ class SketchiApp(ctk.CTk):
 
 
     def verification_gui(self):
-        self.clear_gui()
+        self.delete_this_frame.pack_forget()
         def verify_code(code):
+            print(code)
             if not code:
                 self.lbl_message.configure(text="Please enter the verification code.", text_color="red")
                 return
@@ -1032,7 +1033,7 @@ class SketchiApp(ctk.CTk):
             
         frame = ctk.CTkFrame(self, width=340, height=360, corner_radius=12)
         frame.place(relx=0.5, rely=0.5, anchor="center")
-
+        self.delete_this_frame = frame
         # Title
         lbl_title = ctk.CTkLabel(frame, text="Sketchi", font=ctk.CTkFont(size=18, weight="bold"))
         lbl_title.pack(pady=15)

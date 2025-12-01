@@ -28,16 +28,27 @@ def sign_up(email, username, password):
     Client.send_message(payload)
 
 
+def verify_code(code):
+    payload = {
+        "msg_type": "email_verification_attempt",
+        "username": Cache.get("username"),
+        "verification_code": code
+    }
+    print(f"sending {Cache.get("username")}, {code}")
+    Client.send_message(payload)
 
 def sign_up_confirmation(success, username=None, verfication_required=None):
     print("Confirmation recieved")
     if success == False:
          GUI.app.failed_signup()
          return
-
+    
     Cache.add("username", username)
 
-    GUI.app.sign_up_complete(verfication_required)
+    if verfication_required:
+        GUI.app.verification_gui()
+    else:
+        GUI.app.sign_up_complete(verfication_required)
 
 
 def login_confirmation(success, username=None):
@@ -49,3 +60,4 @@ def login_confirmation(success, username=None):
     Cache.add("username", username)
 
     GUI.app.complete_login()
+

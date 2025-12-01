@@ -2,6 +2,7 @@ import mysql.connector
 import bcrypt
 import configparser
 
+import asyncio
 import Main.EmailVerification as EmailVerification
 
 conn = None
@@ -83,15 +84,15 @@ def signup(username, email, password):
 
 
     verification_code = ""
-    verification_enabled = EmailVerification.check_verification_enabled()
+    verification_enabled = True #EmailVerification.check_verification_enabled()
     verified = False
 
 
-    if verification_enabled == True:
+    if verification_enabled == False:
         verified = True
     else:
         verification_code = EmailVerification.generate_verification_code()
-    
+        asyncio.create_task(EmailVerification.send_verification_email(email, verification_code))
     try:
         cursor.execute(
             "INSERT INTO Accounts (Username, Email, Password, Email_Verified, Email_Verification_Code, Projects, Friends, Profile_Picture) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
