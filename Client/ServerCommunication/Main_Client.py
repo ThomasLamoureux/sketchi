@@ -3,7 +3,7 @@ import json
 import struct
 import uuid
 
-import ServerCommunication.message_reciever as message_reciever
+import ServerCommunication.Server_Messages as Server_Messages
 from FrontEnd import gui as GUI
 
 MSG_HDR = struct.Struct("!I")  # 4-byte big-endian length prefix
@@ -81,7 +81,7 @@ class Client():
         print(f"[SERVER MSG] id={msg_id} payload={payload}")
 
 
-        message_reciever.recieved_message(payload)
+        Server_Messages.recieved_message(payload)
         # Here you would process the payload (e.g. display to user, trigger logic)
         # Once processed successfully, send ACK:
 

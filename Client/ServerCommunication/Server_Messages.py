@@ -1,4 +1,4 @@
-import ServerCommunication.Login as Login
+import ServerCommunication.Credentials as Credentials
 import FrontEnd.gui as GUI
 
 def recieved_message(payload: dict):
@@ -10,14 +10,14 @@ def recieved_message(payload: dict):
         success = payload.get("success")
         
         username = payload.get("username")
-        Login.login_confirmation(success, username)
+        Credentials.login_confirmation(success, username)
 
     elif msg_type == "signup":
         success = payload.get("success")
 
         username = payload.get("username")
         verification_required = payload.get("verification_on")
-        Login.sign_up_confirmation(success, username, verification_required)
+        Credentials.sign_up_confirmation(success, username, verification_required)
         
     elif msg_type == "draw":
         drawing_data = payload.get("drawing_data")

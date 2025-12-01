@@ -1,4 +1,4 @@
-import ServerCommunication.Client as Client
+import ServerCommunication.Main_Client as Main_Client
 import Cache.Cache as Cache
 import FrontEnd.gui as GUI
 import tkinter as tk
@@ -12,7 +12,7 @@ def validate_credentials(username, password):
         "password": password
     }
 
-    Client.send_message(payload)
+    Main_Client.send_message(payload)
 
 
 
@@ -25,7 +25,7 @@ def sign_up(email, username, password):
         "password": password
     }
     print("Requesting sign up")
-    Client.send_message(payload)
+    Main_Client.send_message(payload)
 
 
 def verify_code(code):
@@ -35,7 +35,7 @@ def verify_code(code):
         "verification_code": code
     }
     print(f"sending {Cache.get("username")}, {code}")
-    Client.send_message(payload)
+    Main_Client.send_message(payload)
 
 def sign_up_confirmation(success, username=None, verfication_required=None):
     print("Confirmation recieved")

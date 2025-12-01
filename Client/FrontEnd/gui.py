@@ -9,9 +9,8 @@ import os
 import math
 
 import Cache.Cache as Cache
-import ServerCommunication.message_sender as MessageSender
-import ServerCommunication.Login as Login
-import ServerCommunication.Client as Client
+import ServerCommunication.Credentials as Credentials
+import ServerCommunication.Main_Client as Main_Client
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
@@ -389,7 +388,7 @@ class SketchiArtboard(ctk.CTkFrame):
 
     def project_join_gui(self):
         def request_art_project(owner, code):
-            Client.send_message(
+            Main_Client.send_message(
                 payload={
                     "msg_type": "join_art_project",
                     "owner": owner,
@@ -401,7 +400,7 @@ class SketchiArtboard(ctk.CTkFrame):
                 "msg_type": "create_art_project",
             }
 
-            Client.send_message(payload)
+            Main_Client.send_message(payload)
 
             
         frame = ctk.CTkFrame(self, width=340, height=360, corner_radius=12)
@@ -626,7 +625,7 @@ class SketchiArtboard(ctk.CTkFrame):
                 "msg_type": "draw",
                 "drawing_data": drawing_data
             }
-            Client.send_message(payload)
+            Main_Client.send_message(payload)
             
     def stop_drawing(self, event):
         self.is_drawing = False
@@ -840,7 +839,7 @@ class ChannelsFrame(ctk.CTkFrame):
                 "msg_type": "project_message",
                 "text": text
             }
-            Client.send_message(payload)
+            Main_Client.send_message(payload)
     
     def write_mini_message(self, text):
         if (self.current_mode != "mini_chat"):
@@ -965,7 +964,7 @@ class SketchiApp(ctk.CTk):
                 self.lbl_message.configure(text="Please enter the verification code.", text_color="red")
                 return
 
-            Login.verify_code(code)
+            Credentials.verify_code(code)
         
         frame = ctk.CTkFrame(self, width=340, height=240, corner_radius=12)
         frame.place(relx=0.5, rely=0.5, anchor="center")
@@ -1000,7 +999,7 @@ class SketchiApp(ctk.CTk):
 
 
 
-            Login.validate_credentials(username, password)
+            Credentials.validate_credentials(username, password)
 
             
 
@@ -1011,7 +1010,7 @@ class SketchiApp(ctk.CTk):
                 return
 
 
-            Login.sign_up(email, username, password)
+            Credentials.sign_up(email, username, password)
 
 
         def switch_to_signup():
@@ -1089,7 +1088,7 @@ class SketchiApp(ctk.CTk):
             port = int(entry.split(":")[1])
 
 
-            Client.send_connection_request(host, port)
+            Main_Client.send_connection_request(host, port)
         except Exception as err:
             print(err)
             self.lbl_message.configure(text="Please enter a valid address.", text_color="red")
