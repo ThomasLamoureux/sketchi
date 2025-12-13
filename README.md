@@ -82,6 +82,17 @@ python -m client
 - Revamped app GUI - BW
 - Revamped connection and login GUI - TL
 - Setup collaboration drawing with new GUI - TL
+### Week 7/8/9; 10/11 - 11/1
+- Bug fixes. - TL
+- Improved connection handling. - TL
+- Database improvements - LA
+### Final month
+- Added config files - TL
+- Redid UI, improved it and added animations. - BW
+- Email Verification - TL
+- More Database Improvements - LA
+- Overall Improvements to the app.
+
 
 
 # Group Members:
