@@ -1,5 +1,5 @@
 import Database.database as account
-import Main.server as server
+import Main.Main_Server as server
 import asyncio
 
 from Main import EmailVerification

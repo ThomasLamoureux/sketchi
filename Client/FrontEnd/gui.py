@@ -387,6 +387,22 @@ class SketchiArtboard(ctk.CTkFrame):
         else:
             self.lbl_message.configure(text=f"Join Failed: {reason}")
 
+    def save_as_png(self):
+        from datetime import datetime
+
+        # Generate name like: screenshot_20231212213700.png
+        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+        filename = f'sketchi_canvas_{timestamp}.png'
+
+        # Step 1: Save as PostScript
+        self.canvas.postscript(file="temp_image.eps")
+        
+        # Step 2: Convert to PNG using PIL
+        img = Image.open("temp_image.eps")
+        img.save(filename, "png")
+
+
+
 
     def project_join_gui(self):
         def request_art_project(owner, code):
@@ -673,6 +689,7 @@ class SketchiArtboard(ctk.CTkFrame):
         
     def clear_canvas(self):
         self.canvas.delete("all")
+        
         
     def set_eraser(self):
         self.select_color("#ffffff")
@@ -1398,7 +1415,7 @@ class SketchiApp(ctk.CTk):
         # Title
         self.header_title = ctk.CTkLabel(
             header_content,
-            text="Main Chat",
+            text="Open Artboard",
             font=("Segoe UI", 16, "bold"),
             cursor="hand2"
         )
@@ -1437,7 +1454,7 @@ class SketchiApp(ctk.CTk):
         
     def switch_to_chat(self):
         self.current_view = "chat"
-        self.header_title.configure(text="Main Chat")
+        self.header_title.configure(text="Open Artboard")
         
         if hasattr(self, 'artboard'):
             self.artboard.destroy()
